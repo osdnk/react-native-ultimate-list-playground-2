@@ -93,7 +93,7 @@ dependencies {
   def json = new JsonSlurper().parseText(inputFile.text)
   def reactNativeVersion = json.version as String
   def (major, minor, patch) = reactNativeVersion.tokenize('.')
-  def raAAR = "${rootDir}/../node_modules/react-native-reanimated/android/react-native-reanimated-${minor}.aar"
+  def raAAR = "${rootDir}/../node_modules/react-native-reanimated/android/react-native-reanimated-${minor}-hermes.aar"
 
   extractJNI(files(rnAAR, jscAAR, raAAR))
 }

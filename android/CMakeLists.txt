@@ -41,6 +41,7 @@ target_include_directories(
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SpecTools"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SharedItems"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Registries"
+        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/LayoutAnimations"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/hidden_headers"
         "../cpp"
 )
