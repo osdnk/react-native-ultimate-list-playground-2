@@ -9,6 +9,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Tab = createBottomTabNavigator();
 function App() {
+  return <Fibonacci/>
   return (
     <NavigationContainer>
       <Tab.Navigator>

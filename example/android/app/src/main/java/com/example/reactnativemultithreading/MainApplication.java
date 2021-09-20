@@ -16,6 +16,8 @@ import com.reactnativemultithreading.MultithreadingPackage;
 
 import com.facebook.react.bridge.JSIModulePackage;
 
+import reactnativemmkv.UltimateListPackage;
+
 public class MainApplication extends Application implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost =
@@ -32,6 +34,7 @@ public class MainApplication extends Application implements ReactApplication {
           // Packages that cannot be autolinked yet can be added manually here, for MultithreadingExample:
           // packages.add(new MyReactNativePackage());
           packages.add(new MultithreadingPackage());
+          packages.add(new UltimateListPackage());
           return packages;
         }
 

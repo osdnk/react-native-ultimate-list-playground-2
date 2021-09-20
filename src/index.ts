@@ -20,7 +20,7 @@ export const spawnThread = g.spawnThread as <T>(run: () => T) => Promise<T>;
 
 // TODO: Find a way to automatically bind console once I can spawn multiple threads. Possibly through a member function: Thread.polyfillConsole()
 const capturableConsole = console;
-spawnThread(() => {
+spawnThread && spawnThread(() => {
   'worklet';
   const console = {
     debug: runOnJS(capturableConsole.debug),
