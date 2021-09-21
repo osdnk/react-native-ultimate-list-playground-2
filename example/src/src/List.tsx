@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { View, Text, StyleSheet, ViewStyle, NativeModules } from 'react-native';
 import {
+  CellStorage,
   RecyclerListView,
   RecyclerRow as RawRecyclerRow,
   UltraFastTextWrapper,
@@ -107,23 +108,23 @@ function UltraFastText({ binding }: { binding: string }) {
 function ContactCell() {
   const data = useSharedDataAtIndex();
   const text = useDerivedValue(() => data.value?.name ?? '');
-  // const color = useDerivedValue(() => {
-  //   const name = data.value?.name ?? '';
-  //   const colors = ['red', 'green', 'blue', 'white', 'yellow'];
-  //   let hash = 0,
-  //     i,
-  //     chr;
-  //   if (name.length === 0) return hash;
-  //   for (i = 0; i < name.length - 2; i++) {
-  //     chr = name.charCodeAt(i);
-  //     hash = (hash << 5) - hash + chr;
-  //     hash |= 0;
-  //   }
-  //   return colors[Math.abs(hash) % 5];
-  // });
-  // const circleStyle = useAnimatedStyle(() => ({
-  //   backgroundColor: color.value,
-  // }));
+  const color = useDerivedValue(() => {
+    const name = data.value?.name ?? '';
+    const colors = ['red', 'green', 'blue', 'white', 'yellow'];
+    let hash = 0,
+      i,
+      chr;
+    if (name.length === 0) return hash;
+    for (i = 0; i < name.length - 2; i++) {
+      chr = name.charCodeAt(i);
+      hash = (hash << 5) - hash + chr;
+      hash |= 0;
+    }
+    return colors[Math.abs(hash) % 5];
+  });
+  const circleStyle = useAnimatedStyle(() => ({
+    backgroundColor: color.value,
+  }));
 
   const {
     nested: { prof },
@@ -141,18 +142,18 @@ function ContactCell() {
         flexDirection: 'row',
       }}
     >
-      {/*<Animated.View*/}
-      {/*  style={[*/}
-      {/*    circleStyle,*/}
-      {/*    {*/}
-      {/*      width: 60,*/}
-      {/*      height: 60,*/}
-      {/*      borderRadius: 30,*/}
-      {/*      marginRight: 20,*/}
-      {/*    },*/}
-      {/*  ]}*/}
-      {/*/>*/}
-      <UltraFastText binding={name} />
+      <Animated.View
+        style={[
+          circleStyle,
+          {
+            width: 60,
+            height: 60,
+            borderRadius: 30,
+            marginRight: 20,
+          },
+        ]}
+      />
+      <UltraFastText binding={prof} />
       {/*<UltraFastSwtich binding={"type"} >*/}
       {/*  <UltraFastCase type="loading"/>*/}
       {/*</UltraFastSwtich>*/}
@@ -166,18 +167,24 @@ function ContactCell() {
 }
 
 function RecyclableViews({ children }: { children: React.ReactChild }) {
+  const [cells, setCells] = useState<number>(1)
+  console.log("rendering " + cells + "cells")
   return (
-    <View removeClippedSubviews={false} style={{ opacity: 1 }}>
+    <CellStorage removeClippedSubviews={false} style={{ opacity: 1 }} onMoreRowsNeeded={e => setCells(e.nativeEvent.cells)}>
       {/* TODO make better render counting  */}
-      {[...Array(8)].map((_, key) => (
-        <RecyclerRow
-          removeClippedSubviews={false}
-          key={`rl-${key}`}
+      {[...Array(cells)].map((_, key) => (
+        <View removeClippedSubviews={false}
+              key={`rl-${key}`}
+
         >
-          {children}
-        </RecyclerRow>
+          <RecyclerRow
+            removeClippedSubviews={false}
+          >
+            {children}
+          </RecyclerRow>
+        </View>
       ))}
-    </View>
+    </CellStorage>
   );
 }
 
@@ -193,6 +200,7 @@ function RecyclerView<TData>({
   const T = {};
   const copiedData = useMemo(() => cloneDeep(data), [data]);
   const datas = useSharedValue(data2);
+ // setTimeout(() => global.setData(data), 5000)
   //console.log(datas);
 
   // global.recyclableData = data;
@@ -230,7 +238,16 @@ function RecyclerView<TData>({
   );
 }
 
+// console.log(global.setData)
+// if (global.setData) {
+//   global.setData(data)
+// }
+// setInterval(() => console.log(global.setData), 100)
+
+
 export default function Example() {
+  useState(() => {
+  })
   // const layoutProvider = useLayoutProvider(() => ({
   //   contact: <ContactCell />,
   //   call: <CallView/>

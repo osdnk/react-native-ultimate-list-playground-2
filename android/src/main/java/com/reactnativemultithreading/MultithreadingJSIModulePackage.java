@@ -10,10 +10,11 @@ import java.util.List;
 public class MultithreadingJSIModulePackage extends ReanimatedJSIModulePackage {
     @Override
     public List<JSIModuleSpec> getJSIModules(ReactApplicationContext reactApplicationContext, JavaScriptContextHolder jsContext) {
+        MultithreadingModule.install(reactApplicationContext, jsContext);
+
         try {
             return super.getJSIModules(reactApplicationContext, jsContext);
         } finally {
-            MultithreadingModule.install(reactApplicationContext, jsContext);
         }
     }
 }

@@ -283,7 +283,7 @@ namespace multithreading {
         auto setData = jsi::Function::createFromHostFunction(runtime,
                                                              jsi::PropNameID::forAscii(runtime, "setData"),
                                                              1,  // run
-                                                             [setupFuture, pool](jsi::Runtime& cruntime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+                                                             [](jsi::Runtime& cruntime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
 
                                                               //  manager->scheduler->scheduleOnUI([&cruntime, arguments]() {
                                                                      dataValue = reanimated::ShareableValue::adapt(cruntime, arguments[0], manager.get());

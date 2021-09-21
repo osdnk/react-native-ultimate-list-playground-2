@@ -1,6 +1,7 @@
 package reactnativemmkv;
 
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,20 +67,18 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ViewGroup vg = ((ViewGroup) mView.getParent().getParent().getParent());
-        ViewGroup vgv = (ViewGroup) vg.getChildAt(0);
-        RecyclerRow viewToReparent = (RecyclerRow) vgv.getChildAt(0);
-        if (viewToReparent == null) {
+        CellStorage storage = (CellStorage) vg.getChildAt(0);
+        ViewGroup row = (ViewGroup) storage.getFirstNonEmptyChild();
+        if (row == null) {
           LinearLayout view = new LinearLayout(mContext);
-          ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(cellWidth, cellHeight);
+          ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(storage.mMinWidth, storage.mMinHeight);
           view.setLayoutParams(params);
+          storage.increaseNumberOfCells();
           return new ViewHolder(view);
         } else {
-
-          cellWidth = viewToReparent.getWidth();
-          cellHeight = viewToReparent.getHeight();
-          isCellMeasured = true;
+          RecyclerRow viewToReparent = (RecyclerRow) row.getChildAt(0);
           ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(viewToReparent.getWidth(), viewToReparent.getHeight());
-          vgv.removeView(viewToReparent);
+          row.removeView(viewToReparent);
           LinearLayout view = new LinearLayout(mContext);
           view.setLayoutParams(params);
           view.addView(viewToReparent);
@@ -95,9 +94,29 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     public void onBindViewHolder(ViewHolder holder, int position) {
         //String animal = String.valueOf(mModule.valueAtIndex(position));
        // ((ReactTextView)((ViewGroup) holder.mLayout.getChildAt(0)).getChildAt(1)).setText(animal);
-      RecyclerRow recyclerRow = (RecyclerRow) holder.mLayout.getChildAt(0);
-      JSValueGetter valueGetter = new JSValueGetter(position, mModule);
-      recyclerRow.recycle(position, valueGetter);
+        ViewGroup recyclerRow = (ViewGroup) holder.mLayout.getChildAt(0);
+      if (recyclerRow instanceof RecyclerRow) {
+          JSValueGetter valueGetter = new JSValueGetter(position, mModule);
+          ((RecyclerRow)recyclerRow).recycle(position, valueGetter);
+      } else {
+          ViewGroup vg = ((ViewGroup) mView.getParent().getParent().getParent());
+          CellStorage vgv = (CellStorage) vg.getChildAt(0);
+          ViewGroup rowWrapper = (ViewGroup) vgv.getFirstNonEmptyChild();
+          if (rowWrapper != null) {
+
+              RecyclerRow row = (RecyclerRow) rowWrapper.getChildAt(0);
+              rowWrapper.removeView(row);
+              holder.mLayout.removeView(recyclerRow);
+              holder.mLayout.addView(row);
+          } else {
+              vgv.registerViewNeedingInflating(holder.mLayout, position);
+              Log.d("XXX", "waiting for new rows, expected" + vgv.mNumberOfCells + "having: " + vgv.getChildCount());
+          }
+//          holder.mLayout.removeView(holder.mLayout.getChildAt(0));
+//          holder.mLayout.addView(row);
+          //holder.mLayout.
+      }
+
         //holder.myTextView.setText(animal);
 //        if (holder.mLayout.getChildCount() == 0) {
 //          ViewGroup vg = ((ViewGroup) mView.getParent().getParent().getParent());

@@ -31,7 +31,6 @@ const fibonacci = (num: number): number => {
   return fib[fib.length - 1];
 };
 
-setTimeout(() => global.setData(data), 5000)
 
 // spawnThread(()=>{}, {
 //   0: 1,

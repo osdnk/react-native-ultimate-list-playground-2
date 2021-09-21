@@ -1,0 +1,51 @@
+package reactnativemmkv;
+
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+
+import androidx.annotation.Nullable;
+
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.common.MapBuilder;
+import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.uimanager.ViewGroupManager;
+
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
+
+class CellStorageManager extends ViewGroupManager<CellStorage> {
+  public static final String REACT_CLASS = "CellStorage";
+  private ReactApplicationContext mCallerContext;
+
+  public CellStorageManager(ReactApplicationContext reactContext) {
+    mCallerContext = reactContext;
+  }
+
+  @Override
+  public String getName() {
+    return REACT_CLASS;
+  }
+
+  @Override
+  public CellStorage createViewInstance(ThemedReactContext context) {
+    return new CellStorage(context);
+  }
+
+  @Override
+  public @Nullable
+  Map<String, Object> getExportedCustomDirectEventTypeConstants() {
+    return createExportedCustomDirectEventTypeConstants();
+  }
+
+  public static Map<String, Object> createExportedCustomDirectEventTypeConstants() {
+    return MapBuilder.<String, Object>builder()
+      .put(
+        "onMoreRowsNeeded",
+        MapBuilder.of("registrationName", "onMoreRowsNeeded"))
+      .build();
+  }
+}

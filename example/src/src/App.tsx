@@ -6,6 +6,7 @@ import { c } from './Benchmarks';
 import RecyclerView from './List';
 import AnimatedStyleUpdateExample from './ChatHeads';
 import Animated from "react-native-reanimated";
+import { data } from '../data';
 
 //const storage = new MMKV();
 
@@ -24,6 +25,7 @@ const renderWrapper = (_, key) => (
     </View>
   </View>
 )
+//global.setData(data)
 // storage.setArray([
 //   1, 2, 3, 4, 5, 6, 7, 4, 1, 2, 1, 2, 3, 4, 5, 6, 7, 4, 1, 2, 1, 2, 3, 4, 5, 6,
 //   7, 4, 1, 2, 1, 2, 3, 4, 5, 6, 7, 4, 1, 2, 1, 2, 3, 4, 5, 6, 7, 4, 1, 2, 1, 2,
@@ -32,6 +34,10 @@ const renderWrapper = (_, key) => (
 //   5, 6, 7, 4, 1, 2, 1, 2, 3, 4, 5, 6, 7, 4, 1, 2,
 // ].map(s => s.toString()));
 export default function App() {
+  let time = Date.now();
+  global.setData(data) // 2 ms
+  // global.___data = data;
+  console.warn(Date.now() - time)
   return (
     <View style={styles.container}>
       <View removeClippedSubviews={false} style={{ opacity: 0, position: 'absolute' }}>
@@ -40,7 +46,8 @@ export default function App() {
 
 
       <RecyclerView/>
-      {/*<AnimatedStyleUpdateExample/>*/}
+      <Button title={"setData"} onPress={() => global.setData(data)}/>
+      <AnimatedStyleUpdateExample/>
       <Text style={{ color: "red" }}>{!!global.HermesInternal ? "HERMES" : "JSC"}</Text>
 
     </View>

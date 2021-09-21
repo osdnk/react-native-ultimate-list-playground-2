@@ -22,7 +22,8 @@ public class UltimateListPackage implements ReactPackage {
     return Arrays.asList(
       new RecyclerRowManager(reactContext),
       new RecyclerViewManager(reactContext),
-      new UltraFastTextWrapperManager(reactContext)
+      new UltraFastTextWrapperManager(reactContext),
+      new CellStorageManager(reactContext)
     );
   }
 }

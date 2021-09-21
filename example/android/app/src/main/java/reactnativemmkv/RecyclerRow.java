@@ -1,5 +1,8 @@
 package reactnativemmkv;
 
+import android.view.ViewGroup;
+import android.view.ViewParent;
+
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -39,6 +42,15 @@ class RecyclerRow extends ReactViewGroup {
         return mExtraData;
       }
     });
+  }
+
+  @Override
+  protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    super.onLayout(changed, left, top, right, bottom);
+    ViewParent maybeStorage = getParent().getParent();
+    if (maybeStorage instanceof CellStorage) {
+      ((CellStorage) maybeStorage).notifySomeViewIsReady();
+    }
   }
 
   public RecyclerRow(ThemedReactContext context) {
