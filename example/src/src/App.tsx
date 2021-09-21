@@ -35,21 +35,14 @@ const renderWrapper = (_, key) => (
 // ].map(s => s.toString()));
 export default function App() {
   let time = Date.now();
-  global.setData(data) // 2 ms
+  global.setData(data) // 2 ms move smwr else
   // global.___data = data;
   console.warn(Date.now() - time)
   return (
     <View style={styles.container}>
-      <View removeClippedSubviews={false} style={{ opacity: 0, position: 'absolute' }}>
-        {[...Array(10)].map(renderWrapper)}
-      </View>
-
 
       <RecyclerView/>
-      <Button title={"setData"} onPress={() => global.setData(data)}/>
       <AnimatedStyleUpdateExample/>
-      <Text style={{ color: "red" }}>{!!global.HermesInternal ? "HERMES" : "JSC"}</Text>
-
     </View>
   );
 }

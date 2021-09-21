@@ -102,9 +102,60 @@ function UltraFastText({ binding }: { binding: string }) {
   );
 }
 
+
+function RecyclableViews({ children }: { children: React.ReactChild }) {
+  const [cells, setCells] = useState<number>(1)
+  console.log("rendering " + cells + "cells")
+  // use reanimated event here and animated reaction
+  return (
+    <CellStorage removeClippedSubviews={false} style={{ opacity: 0.1 }} onMoreRowsNeeded={e => setCells(e.nativeEvent.cells)}>
+      {/* TODO make better render counting  */}
+      {[...Array(cells)].map((_, key) => (
+        <View removeClippedSubviews={false}
+              key={`rl-${key}`}
+
+        >
+          <RecyclerRow
+            removeClippedSubviews={false}
+          >
+            {children}
+          </RecyclerRow>
+        </View>
+      ))}
+    </CellStorage>
+  );
+}
+
+function RecyclerView<TData>({
+                               style,
+                               children,
+                             }: {
+  style: ViewStyle;
+  children: any;
+  data: TData[];
+}) {
+  // @ts-ignore
+  const T = {};
+  const copiedData = useMemo(() => cloneDeep(data), [data]);
+  const datas = useSharedValue(data2);
+  return (
+    <DataContext.Provider value={datas}>
+      <View style={style} removeClippedSubviews={false}>
+        <RecyclableViews>{children}</RecyclableViews>
+        <RecyclerListView
+          count={data.length}
+          style={StyleSheet.absoluteFillObject}
+        />
+      </View>
+    </DataContext.Provider>
+  );
+}
+
+
 // const List = createList<Data>();
 // const { WrapperList, useUltraFastSomething, useSharedDataAtIndex, useData } = List;
 
+// HERE starts example
 function ContactCell() {
   const data = useSharedDataAtIndex();
   const text = useDerivedValue(() => data.value?.name ?? '');
@@ -128,7 +179,6 @@ function ContactCell() {
 
   const {
     nested: { prof },
-    name,
   } = useUltraFastData<DataCell>(); // const prof = "nested.prof"
 
   return (
@@ -166,77 +216,6 @@ function ContactCell() {
   );
 }
 
-function RecyclableViews({ children }: { children: React.ReactChild }) {
-  const [cells, setCells] = useState<number>(1)
-  console.log("rendering " + cells + "cells")
-  return (
-    <CellStorage removeClippedSubviews={false} style={{ opacity: 1 }} onMoreRowsNeeded={e => setCells(e.nativeEvent.cells)}>
-      {/* TODO make better render counting  */}
-      {[...Array(cells)].map((_, key) => (
-        <View removeClippedSubviews={false}
-              key={`rl-${key}`}
-
-        >
-          <RecyclerRow
-            removeClippedSubviews={false}
-          >
-            {children}
-          </RecyclerRow>
-        </View>
-      ))}
-    </CellStorage>
-  );
-}
-
-function RecyclerView<TData>({
-  style,
-  children,
-}: {
-  style: ViewStyle;
-  children: any;
-  data: TData[];
-}) {
-  // @ts-ignore
-  const T = {};
-  const copiedData = useMemo(() => cloneDeep(data), [data]);
-  const datas = useSharedValue(data2);
- // setTimeout(() => global.setData(data), 5000)
-  //console.log(datas);
-
-  // global.recyclableData = data;
-  // global.sharedRecyclableData = datas;
-
-  // useDerivedValue(() => {
-  //   if (global.LayoutAnimationRepository) {
-  //     global.recyclableData = datas.value;
-  //     console.log(global.getPointer(global.recyclableData))
-  //
-  //   }
-  //   console.log(global.x);
-  // }, [data]);
-
-  // console.log(T.__reanimatedHostObjectRef);
-  // console.log(
-  //   datas.__reanimatedHostObjectRef,
-  //   datas.value.__reanimatedHostObjectRef,
-  //   'GGGG'
-  // );
-
-  //  console.log(global._WORKLET_RUNTIME)
-
- // setTimeout(() => console.log(global.x), 1000);
-  return (
-    <DataContext.Provider value={datas}>
-      <View style={style} removeClippedSubviews={false}>
-        <RecyclableViews>{children}</RecyclableViews>
-        <RecyclerListView
-          count={data.length}
-          style={StyleSheet.absoluteFillObject}
-        />
-      </View>
-    </DataContext.Provider>
-  );
-}
 
 // console.log(global.setData)
 // if (global.setData) {
@@ -248,18 +227,6 @@ function RecyclerView<TData>({
 export default function Example() {
   useState(() => {
   })
-  // const layoutProvider = useLayoutProvider(() => ({
-  //   contact: <ContactCell />,
-  //   call: <CallView/>
-  // }))
-
-  //
-  // const layoutProvider = useMemo(() => ({
-  //   contact: <ContactCell />,
-  //   call: <CallView/>
-  // }), [])
-
-  //const layoutTypeExtractor = useLayoutTypeExtractor(item =>  item.name)
 
   return (
     <RecyclerView<DataCell>
