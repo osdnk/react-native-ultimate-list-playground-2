@@ -2,7 +2,6 @@ import { MutableRefObject, RefObject, useEffect, useRef } from 'react';
 import { NativeScrollEvent, Platform } from 'react-native';
 import WorkletEventHandler from 'react-native-reanimated/src/reanimated2/WorkletEventHandler';
 import { makeRemote } from 'react-native-reanimated/src/reanimated2/core';
-import { DataCell } from './data';
 
 type DependencyList = unknown[] | undefined;
 type Context = Record<string, unknown>;
@@ -129,13 +128,10 @@ interface ScrollEvent extends NativeScrollEvent {
 }
 
 export function useAnimatedRecycleHandler<TContext extends Context>(
-  handlers: ScrollHandler<TContext>,
+  scrollHandlers: Record<string, Handler<ScrollEvent, TContext>>,
   dependencies?: DependencyList
 ): RefObject<WorkletEventHandler> {
   // case when handlers is a function
-  const scrollHandlers: Record<string, Handler<ScrollEvent, TContext>> = {
-    onRecycle: handlers,
-  };
   const { context, doDependenciesDiffer } = useHandler<ScrollEvent, TContext>(
     scrollHandlers,
     dependencies
@@ -150,8 +146,13 @@ export function useAnimatedRecycleHandler<TContext extends Context>(
       if (onRecycle && event.eventName.endsWith('onRecycle')) {
         onRecycle(event, context);
       }
+
+      const { onMoreRowsNeeded } = scrollHandlers;
+      if (onMoreRowsNeeded && event.eventName.endsWith('onMoreRowsNeeded')) {
+        onMoreRowsNeeded(event, context);
+      }
     },
-    ['onRecycle'],
+    ['onRecycle', 'onMoreRowsNeeded'],
     doDependenciesDiffer
   );
 }

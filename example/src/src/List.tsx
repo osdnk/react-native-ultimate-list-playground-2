@@ -9,14 +9,14 @@ import { View, Text, StyleSheet, ViewStyle, NativeModules } from 'react-native';
 import {
   CellStorage,
   RecyclerListView,
-  RecyclerRow as RawRecyclerRow,
+  RecyclerRow as RawRecyclerRow, RecyclerRowWrapper,
   UltraFastTextWrapper,
 } from './ultimate';
 import { data, DataCell, data2 } from './data';
 import Animated, {
   useSharedValue,
   useDerivedValue,
-  useAnimatedStyle,
+  useAnimatedStyle, runOnJS,
 } from 'react-native-reanimated';
 import { useAnimatedRecycleHandler } from './useAnimatedRecycleEvent';
 import { ReText } from 'react-native-redash';
@@ -39,8 +39,12 @@ const someWorklet = (greeting) => {
 //import { useDerivedValue } from './useImmediateDerivedValue';
 
 const DataContext = createContext<SharedValue<any[]> | null>(null);
+const RawDataContext = createContext<any[] | null>(null);
 const PositionContext = createContext<Animated.SharedValue<number> | null>(
   null
+);
+const InitialPositionContext = createContext<number>(
+  -1
 );
 
 const AnimatedRecyclableRow = Animated.createAnimatedComponent(RawRecyclerRow);
@@ -49,28 +53,66 @@ function usePosition() {
   return useContext(PositionContext);
 }
 
+function useInitialPosition() {
+  return useContext(InitialPositionContext);
+}
+
 function useData() {
   return useContext(DataContext);
+}
+
+function useRawData() {
+  return useContext(RawDataContext);
+}
+
+
+
+
+function useInitialDataAtIndex() {
+  const data = useData();
+  const position = useInitialPosition();
+
+  return data?.[position];
+  //const initialPosition = useContext(PositionContext);
+  // matbo copy the data and not access them on every recycle
+  // @ts-ignore
+
 }
 
 function useSharedDataAtIndex() {
   const data = useData();
   const position = usePosition();
+  const initialPosition = useInitialPosition();
+  const rawData = useRawData()!;
+  const rawDataAtIndex = useRawData()![1];
+  const initialSharedData = useDerivedValue(() => rawDataAtIndex)
+
+  //const initialPosition = useContext(PositionContext);
   // matbo copy the data and not access them on every recycle
-  return useDerivedValue(() => data?.value?.[position?.value ?? -1], []);
+  return useDerivedValue(() => {
+    const v = rawData[position?.value];
+    // Some reanimated 2.2 weirdness. fixme while updating to reanimated 2.3.x
+     const isMainJS = !!global.__reanimatedModuleProxy;
+    return v ? v : isMainJS ? { ...initialSharedData } : initialSharedData;
+  }, [rawData]);
 }
 
-function RecyclerRow(props) {
+function RecyclerRow(props: { initialPosition: number }) {
+
   const position = useSharedValue<number>(-1);
-  const onRecycleHandler = useAnimatedRecycleHandler((e) => {
+  //useState(() => (position.value = props.initialPosition))
+  const onRecycleHandler = useAnimatedRecycleHandler({ onRecycle: (e) => {
     'worklet';
+    //console.log(e)
     position.value = e.position;
-  });
+  }});
 
   return (
-    <PositionContext.Provider value={position}>
-      <AnimatedRecyclableRow {...props} onRecycle={onRecycleHandler}   />
-    </PositionContext.Provider>
+    <InitialPositionContext.Provider value={props.initialPosition}>
+      <PositionContext.Provider value={position}>
+        <AnimatedRecyclableRow {...props} onRecycle={onRecycleHandler} initialPosition={props.initialPosition}   />
+      </PositionContext.Provider>
+    </InitialPositionContext.Provider>
   );
 }
 
@@ -102,27 +144,38 @@ function UltraFastText({ binding }: { binding: string }) {
   );
 }
 
+const AnimatedCellStorage = Animated.createAnimatedComponent(CellStorage)
+
+const PRERENDERED_CELLS = 10;
 
 function RecyclableViews({ children }: { children: React.ReactChild }) {
-  const [cells, setCells] = useState<number>(1)
-  console.log("rendering " + cells + "cells")
+  const [cells, setCells] = useState<number>(0  )
+  const onMoreRowsNeededHandler = useAnimatedRecycleHandler({
+    onMoreRowsNeeded: e => {
+      'worklet';
+      runOnJS(setCells)(e.cells)
+    //  console.log(e)
+    }
+  }, [setCells])
+  //console.log("rendering " + cells + "cells")
   // use reanimated event here and animated reaction
   return (
-    <CellStorage removeClippedSubviews={false} style={{ opacity: 0.1 }} onMoreRowsNeeded={e => setCells(e.nativeEvent.cells)}>
+    <AnimatedCellStorage  style={{ opacity: 0.1 }} onMoreRowsNeeded={onMoreRowsNeededHandler} >
       {/* TODO make better render counting  */}
-      {[...Array(cells)].map((_, key) => (
-        <View removeClippedSubviews={false}
-              key={`rl-${key}`}
+      {[...Array(Math.max(PRERENDERED_CELLS, cells))].map((_, index) => (
+        <RecyclerRowWrapper
+              key={`rl-${index}`}
 
         >
           <RecyclerRow
+            initialPosition={index}
             removeClippedSubviews={false}
           >
             {children}
           </RecyclerRow>
-        </View>
+        </RecyclerRowWrapper>
       ))}
-    </CellStorage>
+    </AnimatedCellStorage>
   );
 }
 
@@ -136,9 +189,9 @@ function RecyclerView<TData>({
 }) {
   // @ts-ignore
   const T = {};
-  const copiedData = useMemo(() => cloneDeep(data), [data]);
-  const datas = useSharedValue(data2);
+  const datas = useDerivedValue(() => data, [data]);
   return (
+    <RawDataContext.Provider value={data}>
     <DataContext.Provider value={datas}>
       <View style={style} removeClippedSubviews={false}>
         <RecyclableViews>{children}</RecyclableViews>
@@ -148,6 +201,7 @@ function RecyclerView<TData>({
         />
       </View>
     </DataContext.Provider>
+    </RawDataContext.Provider>
   );
 }
 
@@ -158,9 +212,10 @@ function RecyclerView<TData>({
 // HERE starts example
 function ContactCell() {
   const data = useSharedDataAtIndex();
-  const text = useDerivedValue(() => data.value?.name ?? '');
+  const text = useDerivedValue(() => data.value?.name ?? data?.name ??'NONE');
   const color = useDerivedValue(() => {
     const name = data.value?.name ?? '';
+    !data && console.log("rerived", data)
     const colors = ['red', 'green', 'blue', 'white', 'yellow'];
     let hash = 0,
       i,
@@ -178,6 +233,7 @@ function ContactCell() {
   }));
 
   const {
+    name,
     nested: { prof },
   } = useUltraFastData<DataCell>(); // const prof = "nested.prof"
 
@@ -194,6 +250,17 @@ function ContactCell() {
     >
       <Animated.View
         style={[
+          {
+            backgroundColor: "blue",
+            width: 60,
+            height: 60,
+            borderRadius: 30,
+            marginRight: 20,
+          },
+        ]}
+      />
+      <Animated.View
+        style={[
           circleStyle,
           {
             width: 60,
@@ -204,12 +271,13 @@ function ContactCell() {
         ]}
       />
       <UltraFastText binding={prof} />
+      <UltraFastText binding={name} />
       {/*<UltraFastSwtich binding={"type"} >*/}
       {/*  <UltraFastCase type="loading"/>*/}
       {/*</UltraFastSwtich>*/}
 
       {/*<UltraFastText binding={name} />*/}
-      <ReText text={text} />
+      {/*<ReText text={text} />*/}
 
       {/*<RecyclableText style={{ width: '70%' }}>Beata Kozidrak</RecyclableText>*/}
     </View>

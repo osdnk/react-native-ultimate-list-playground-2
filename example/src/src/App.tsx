@@ -7,6 +7,7 @@ import RecyclerView from './List';
 import AnimatedStyleUpdateExample from './ChatHeads';
 import Animated from "react-native-reanimated";
 import { data } from '../data';
+import { useState } from 'react';
 
 //const storage = new MMKV();
 
@@ -38,10 +39,19 @@ export default function App() {
   global.setData(data) // 2 ms move smwr else
   // global.___data = data;
   console.warn(Date.now() - time)
+  const [visible, setVisible] = useState<boolean>(true);
+  if (!visible) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
 
       <RecyclerView/>
+      <Button title={"reset"} onPress={() => {
+        setVisible(false);
+        setTimeout(() => setVisible(true), 1000)
+      }} />
       <AnimatedStyleUpdateExample/>
     </View>
   );

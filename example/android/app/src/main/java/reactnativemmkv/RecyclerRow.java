@@ -1,5 +1,6 @@
 package reactnativemmkv;
 
+import android.util.Log;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
@@ -22,11 +23,19 @@ class RecyclerRow extends ReactViewGroup {
     ultraFastChildren.add(id);
   }
 
-  public void recycle(int position, JSValueGetter valueGetter) {
+  private void notifyUltraFastEvents(JSValueGetter valueGetter) {
     for (Integer id: ultraFastChildren ) {
       UltraFastAbstractComponentWrapper component = (UltraFastAbstractComponentWrapper) findViewById(id);
       component.setValue(valueGetter.getJSValue(component.mBinding));
     }
+  }
+
+  public void setInitialPosition(int position) {
+    //mPosition = position;
+   // notifyUltraFastEvents(valueGetter);
+  }
+
+  private void notifyReanimatedComponents(int position) {
     WritableMap mExtraData = Arguments.createMap();
     mExtraData.putInt("position", position);
     mExtraData.putInt("previousPosition", mPosition);
@@ -44,10 +53,17 @@ class RecyclerRow extends ReactViewGroup {
     });
   }
 
+  public void recycle(int position, JSValueGetter valueGetter) {
+    notifyUltraFastEvents(valueGetter);
+    notifyReanimatedComponents(position);
+  }
+
   @Override
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
     super.onLayout(changed, left, top, right, bottom);
     ViewParent maybeStorage = getParent().getParent();
+    Log.d("XXX2", "Rendered a child od size " + (bottom - top));
+
     if (maybeStorage instanceof CellStorage) {
       ((CellStorage) maybeStorage).notifySomeViewIsReady();
     }

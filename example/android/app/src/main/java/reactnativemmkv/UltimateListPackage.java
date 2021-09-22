@@ -23,7 +23,8 @@ public class UltimateListPackage implements ReactPackage {
       new RecyclerRowManager(reactContext),
       new RecyclerViewManager(reactContext),
       new UltraFastTextWrapperManager(reactContext),
-      new CellStorageManager(reactContext)
+      new CellStorageManager(reactContext),
+      new RecyclerRowWrapperManager(reactContext)
     );
   }
 }

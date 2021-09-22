@@ -69,21 +69,22 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         ViewGroup vg = ((ViewGroup) mView.getParent().getParent().getParent());
         CellStorage storage = (CellStorage) vg.getChildAt(0);
         ViewGroup row = (ViewGroup) storage.getFirstNonEmptyChild();
-        if (row == null) {
+      //  if (row == null) {
           LinearLayout view = new LinearLayout(mContext);
           ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(storage.mMinWidth, storage.mMinHeight);
           view.setLayoutParams(params);
           storage.increaseNumberOfCells();
+          Log.d("DDDD", "We need more cells");
           return new ViewHolder(view);
-        } else {
-          RecyclerRow viewToReparent = (RecyclerRow) row.getChildAt(0);
-          ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(viewToReparent.getWidth(), viewToReparent.getHeight());
-          row.removeView(viewToReparent);
-          LinearLayout view = new LinearLayout(mContext);
-          view.setLayoutParams(params);
-          view.addView(viewToReparent);
-          return new ViewHolder(view);
-        }
+//        } else {
+//          RecyclerRow viewToReparent = (RecyclerRow) row.getChildAt(0);
+//          ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(viewToReparent.getWidth(), viewToReparent.getHeight());
+//          row.removeView(viewToReparent);
+//          LinearLayout view = new LinearLayout(mContext);
+//          view.setLayoutParams(params);
+//          view.addView(viewToReparent);
+//          return new ViewHolder(view);
+//        }
     }
 
 
@@ -95,22 +96,29 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         //String animal = String.valueOf(mModule.valueAtIndex(position));
        // ((ReactTextView)((ViewGroup) holder.mLayout.getChildAt(0)).getChildAt(1)).setText(animal);
         ViewGroup recyclerRow = (ViewGroup) holder.mLayout.getChildAt(0);
+        Log.d("XXX", "number of children " + holder.mLayout.getChildCount());
+        JSValueGetter valueGetter = new JSValueGetter(position, mModule);
       if (recyclerRow instanceof RecyclerRow) {
-          JSValueGetter valueGetter = new JSValueGetter(position, mModule);
           ((RecyclerRow)recyclerRow).recycle(position, valueGetter);
+          Log.d("XXX", "having a child, recycling " + recyclerRow.getHeight());
       } else {
           ViewGroup vg = ((ViewGroup) mView.getParent().getParent().getParent());
           CellStorage vgv = (CellStorage) vg.getChildAt(0);
           ViewGroup rowWrapper = (ViewGroup) vgv.getFirstNonEmptyChild();
           if (rowWrapper != null) {
-
+              Log.d("XXX", "Reparenting, v new size " + rowWrapper.getHeight());
               RecyclerRow row = (RecyclerRow) rowWrapper.getChildAt(0);
+              ((RecyclerRow)row).recycle(position, valueGetter);
               rowWrapper.removeView(row);
               holder.mLayout.removeView(recyclerRow);
               holder.mLayout.addView(row);
+
+            //  rowWrapper.addView(recyclerRow);
+            //  recyclerRow.setLayoutParams(new LinearLayout.LayoutParams(row.getWidth(), row.getHeight()));
+
           } else {
               vgv.registerViewNeedingInflating(holder.mLayout, position);
-              Log.d("XXX", "waiting for new rows, expected" + vgv.mNumberOfCells + "having: " + vgv.getChildCount());
+              Log.d("XXX", "waiting for new rows, expected " + vgv.mNumberOfCells + "having: " + vgv.getChildCount());
           }
 //          holder.mLayout.removeView(holder.mLayout.getChildAt(0));
 //          holder.mLayout.addView(row);

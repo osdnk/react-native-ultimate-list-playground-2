@@ -36,24 +36,24 @@ class CellStorage extends ReactViewGroup {
       if (rowWrapper != null) {
         View viewToRemove = mView.getChildAt(0);
         RecyclerRow row = (RecyclerRow) rowWrapper.getChildAt(0);
-        if (!(viewToRemove instanceof RecyclerRow)) {
-          rowWrapper.removeView(row);
-          mView.removeView(viewToRemove);
-          mView.addView(row);
-        }
+        //if (!(viewToRemove == null)) {
+        rowWrapper.removeView(row);
+        mView.removeView(viewToRemove);
+        mView.addView(row);
+        //}
         row.recycle(mPosition, new JSValueGetter(mPosition, mModule));
       }
     }
   }
 
-  public int mNumberOfCells = 1;
+  public int mNumberOfCells = 0;
   private ThemedReactContext mContext;
   UltimateNativeModule mModule;
 
 
   public void increaseNumberOfCells() {
     // maybe by 1 but doesn;t work
-    mNumberOfCells+=2;
+    mNumberOfCells+=1;
     WritableMap mExtraData = Arguments.createMap();
     mExtraData.putInt("cells", mNumberOfCells);
     mContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(new Event(mContext.getSurfaceId(), getId()) {
@@ -80,13 +80,12 @@ class CellStorage extends ReactViewGroup {
     mViewsNeedingInflating.add(new InflationRequests(view, position, mModule));
   }
 
-//  @Override
-//  public void addView(View child, int index, LayoutParams params) {
-//    super.addView(child, index, params);
-//    if (!mViewsNeedingInflating.isEmpty()) {
-//      LinearLayout view = mViewsNeedingInflating.poll();
-//    }
-//  }
+  @Override
+  public void addView(View child, int index, LayoutParams params) {
+    //notifySomeViewIsReady((ViewGroup) child);
+    super.addView(child, index, params);
+    Log.d("[added]", "Views" + getChildCount());
+  }
 
   public ViewGroup getFirstNonEmptyChild() {
     int count = getChildCount();
@@ -100,23 +99,36 @@ class CellStorage extends ReactViewGroup {
   }
 
   public void notifySomeViewIsReady() {
+    ViewGroup row = getFirstNonEmptyChild();
+    if (row instanceof ViewGroup) {
+      notifySomeViewIsReady(row);
+    }
+  }
+
+  public void notifySomeViewIsReady(ViewGroup row) {
+//    if (mViewsNeedingInflating.isEmpty()) {
+//      return;
+//    }
     if (mViewsNeedingInflating.isEmpty()) {
       return;
     }
+    if (row == null) {
+      return;
+    }
     InflationRequests inflationRequests = mViewsNeedingInflating.poll();
-    ViewGroup row = getFirstNonEmptyChild();
+//    ViewGroup row = getFirstNonEmptyChild();
     inflationRequests.inflate(row);
   }
 
-  @Override
-  protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-    if (!mLayoutSet) {
-      // TODO osdnk make it reactive
-      mLayoutSet = true;
-      mMinWidth = right - left;
-      mMinHeight = bottom - top;
+  public void setLayout(int width, int height) {
+    // TODO osdnk make it reactive
+    if (mLayoutSet) {
+      return;
     }
-    super.onLayout(changed, left, top, right, bottom);
+    mLayoutSet = true;
+    mMinWidth = width;
+    mMinHeight = height;
+    double b = Math.ceil(2 * ((double) getHeight() / mMinHeight));
   }
 
   //  @Override
