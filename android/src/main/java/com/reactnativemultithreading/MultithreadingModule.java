@@ -26,6 +26,7 @@ public class MultithreadingModule extends ReactContextBaseJavaModule {
     System.loadLibrary("rnmultithreading");
   }
 
+  static public Scheduler sScheduler;
   static String TAG = "RNMultithreading";
 
   // Dummy so react native adds it to the Gradle Module System
@@ -46,7 +47,8 @@ public class MultithreadingModule extends ReactContextBaseJavaModule {
   public static void install(ReactApplicationContext context, JavaScriptContextHolder jsContext) {
     CallInvokerHolderImpl holder = (CallInvokerHolderImpl) context.getCatalystInstance().getJSCallInvokerHolder();
     SoLoader.init(context, false); // <-- required for makeJSExecutorFactory later on
-    installNative(jsContext.get(), holder, new Scheduler(context));
+    sScheduler = new Scheduler(context);
+    installNative(jsContext.get(), holder, sScheduler);
   }
 
 

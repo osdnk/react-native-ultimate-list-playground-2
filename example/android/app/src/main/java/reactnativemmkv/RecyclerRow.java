@@ -3,6 +3,10 @@ package reactnativemmkv;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
@@ -24,7 +28,7 @@ class RecyclerRow extends ReactViewGroup {
   }
 
   private void notifyUltraFastEvents(JSValueGetter valueGetter) {
-    for (Integer id: ultraFastChildren ) {
+    for (Integer id : ultraFastChildren) {
       UltraFastAbstractComponentWrapper component = (UltraFastAbstractComponentWrapper) findViewById(id);
       component.setValue(valueGetter.getJSValue(component.mBinding));
     }
@@ -32,7 +36,7 @@ class RecyclerRow extends ReactViewGroup {
 
   public void setInitialPosition(int position) {
     //mPosition = position;
-   // notifyUltraFastEvents(valueGetter);
+   //notifyUltraFastEvents(valueGetter);
   }
 
   private void notifyReanimatedComponents(int position) {
@@ -59,14 +63,43 @@ class RecyclerRow extends ReactViewGroup {
   }
 
   @Override
+  public void setLayoutParams(LayoutParams params) {
+    super.setLayoutParams(params);
+    if (getParent() instanceof FrameLayout) {
+      ((FrameLayout) getParent()).setLayoutParams(params);
+    }
+  }
+
+  @Override
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
     super.onLayout(changed, left, top, right, bottom);
     ViewParent maybeStorage = getParent().getParent();
-    Log.d("XXX2", "Rendered a child od size " + (bottom - top));
-
     if (maybeStorage instanceof CellStorage) {
       ((CellStorage) maybeStorage).notifySomeViewIsReady();
     }
+
+    if (getParent().getParent() instanceof RecyclerView) {
+
+      if (((FrameLayout) getParent()).getLayoutParams().height != bottom - top) {
+//
+       ((FrameLayout) getParent()).getLayoutParams().height = bottom - top;
+        getParent().requestLayout();
+      //  getParent().getParent().requestLayout();
+        //((RecyclerView) getParent().getParent()).getAdapter().notifyItemChanged();
+
+        // ((RecyclerView) getParent().getParent()).requestLayout();
+
+//        ((FrameLayout) getParent()).setLayoutParams(
+//                new FrameLayout.LayoutParams(((FrameLayout) getParent()).getLayoutParams())
+//        );
+      }
+
+    }
+//      getParent().requestLayout();
+
+  //Log.d("XXX2", "Rendered a child od size " + (bottom - top));
+
+
   }
 
   public RecyclerRow(ThemedReactContext context) {

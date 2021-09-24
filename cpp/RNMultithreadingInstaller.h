@@ -20,27 +20,10 @@ using namespace facebook;
 namespace mrousavy {
 namespace multithreading {
 
-    double getValue(std::string label);
     std::string obtainStringValueAtIndexByKey(int index, std::string label);
-    double setUIRuntime(jsi::Runtime& aruntime);
 
+    void installSimple(jsi::Runtime& cruntime);
 
-    void install(jsi::Runtime& cruntime,
-                 const std::function<std::unique_ptr<jsi::Runtime>()>& makeRuntime,
-                 const std::function<std::shared_ptr<reanimated::Scheduler>()>& makeScheduler,
-                 const std::function<std::shared_ptr<reanimated::ErrorHandler>(std::shared_ptr<reanimated::Scheduler>)>& makeErrorHandler);
-
-
-    void installSimple(jsi::Runtime& cruntime,
-                 const std::function<std::unique_ptr<jsi::Runtime>()>& makeRuntime,
-                 const std::function<std::shared_ptr<reanimated::Scheduler>()>& makeScheduler,
-                 const std::function<std::shared_ptr<reanimated::ErrorHandler>(std::shared_ptr<reanimated::Scheduler>)>& makeErrorHandler);
-
-
-    void install2(jsi::Runtime& cruntime,
-                 const std::function<std::unique_ptr<jsi::Runtime>()>& makeRuntime,
-                 const std::function<std::shared_ptr<reanimated::Scheduler>()>& makeScheduler,
-                 const std::function<std::shared_ptr<reanimated::ErrorHandler>(std::shared_ptr<reanimated::Scheduler>)>& makeErrorHandler);
 
 }
 }

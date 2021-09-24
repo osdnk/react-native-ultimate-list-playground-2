@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import { spawnThread } from 'react-native-multithreading';
 import 'react-native-reanimated';
-import { data } from "./data"
 import { default as Wrapp } from './src/App';
 
 

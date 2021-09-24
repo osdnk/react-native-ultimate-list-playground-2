@@ -46,6 +46,9 @@ class CellStorageManager extends ViewGroupManager<CellStorage> {
       .put(
         "onMoreRowsNeeded",
         MapBuilder.of("registrationName", "onMoreRowsNeeded"))
+      .put(
+        "onMoreRowsNeededBackup",
+        MapBuilder.of("registrationName", "onMoreRowsNeededBackup"))
       .build();
   }
 }

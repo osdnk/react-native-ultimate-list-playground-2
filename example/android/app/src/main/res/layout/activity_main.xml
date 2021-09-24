@@ -4,12 +4,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvAnimals"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:rotationX="-360"
-        android:visibility="visible" />
-
+        android:layout_height="match_parent">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAnimals"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:rotationX="-360"
+            android:visibility="visible" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </RelativeLayout>

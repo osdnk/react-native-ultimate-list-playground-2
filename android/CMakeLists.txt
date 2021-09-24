@@ -14,6 +14,7 @@ add_library(
         SHARED
         src/main/cpp/cpp-adapter.cpp
         ../cpp/RNMultithreadingInstaller.cpp
+        ../cpp/ShareableNativeValue.cpp
         ../cpp/ThreadPool.cpp
 )
 

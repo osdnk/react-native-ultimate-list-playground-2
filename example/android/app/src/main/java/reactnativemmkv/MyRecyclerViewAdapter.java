@@ -1,10 +1,13 @@
 package reactnativemmkv;
 
 
+import android.graphics.Color;
+import android.provider.CalendarContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -66,12 +69,16 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     // inflates the row layout from xml when needed
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        ViewGroup vg = ((ViewGroup) mView.getParent().getParent().getParent());
+        ViewGroup vg = ((ViewGroup) mView.getParent().getParent().getParent().getParent());
         CellStorage storage = (CellStorage) vg.getChildAt(0);
         ViewGroup row = (ViewGroup) storage.getFirstNonEmptyChild();
       //  if (row == null) {
-          LinearLayout view = new LinearLayout(mContext);
-          ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(storage.mMinWidth, storage.mMinHeight);
+        FrameLayout view = new FrameLayout(mContext);
+//          view.setMinimumHeight(storage.mMinHeight);
+//          view.setMinimumWidth(storage.mMinWidth);
+          ViewGroup.LayoutParams params = new FrameLayout.LayoutParams(storage.mMinWidth, storage.mMinHeight);
+          Log.d("Storage size", " szie" + storage.mMinWidth +  " " + storage.mMinHeight);
+
           view.setLayoutParams(params);
           storage.increaseNumberOfCells();
           Log.d("DDDD", "We need more cells");
@@ -98,11 +105,18 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         ViewGroup recyclerRow = (ViewGroup) holder.mLayout.getChildAt(0);
         Log.d("XXX", "number of children " + holder.mLayout.getChildCount());
         JSValueGetter valueGetter = new JSValueGetter(position, mModule);
-      if (recyclerRow instanceof RecyclerRow) {
+        //holder.mLayout.getLayoutParams().height = position % 6 == 2 ? 400 : 200;
+        //holder.mLayout.setLayoutParams(new LinearLayout.LayoutParams(holder.mLayout.getWidth(), holder.mLayout.getHeight()));
+
+        if (recyclerRow instanceof RecyclerRow) {
           ((RecyclerRow)recyclerRow).recycle(position, valueGetter);
+
+         // holder.mLayout.setLayoutParams(new LinearLayout.LayoutParams(recyclerRow.getWidth(), recyclerRow.getHeight()));
+
+         // recyclerRow.setLayoutParams(new LinearLayout.LayoutParams(position%2 == 1 ? 200 : 100, recyclerRow.getHeight()));
           Log.d("XXX", "having a child, recycling " + recyclerRow.getHeight());
       } else {
-          ViewGroup vg = ((ViewGroup) mView.getParent().getParent().getParent());
+          ViewGroup vg = ((ViewGroup) mView.getParent().getParent().getParent().getParent());
           CellStorage vgv = (CellStorage) vg.getChildAt(0);
           ViewGroup rowWrapper = (ViewGroup) vgv.getFirstNonEmptyChild();
           if (rowWrapper != null) {
@@ -112,12 +126,17 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
               rowWrapper.removeView(row);
               holder.mLayout.removeView(recyclerRow);
               holder.mLayout.addView(row);
+           //   holder.mLayout.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.WRAP_CONTENT, RecyclerView.LayoutParams.WRAP_CONTENT));
+          //    holder.mLayout.setLayoutParams(new LinearLayout.LayoutParams(row.getWidth(), row.getHeight()));
 
             //  rowWrapper.addView(recyclerRow);
             //  recyclerRow.setLayoutParams(new LinearLayout.LayoutParams(row.getWidth(), row.getHeight()));
 
           } else {
-              vgv.registerViewNeedingInflating(holder.mLayout, position);
+              if (!holder.mRegisteredForInflating) {
+                  vgv.registerViewNeedingInflating(holder.mLayout, position);
+                  holder.mRegisteredForInflating = true;
+              }
               Log.d("XXX", "waiting for new rows, expected " + vgv.mNumberOfCells + "having: " + vgv.getChildCount());
           }
 //          holder.mLayout.removeView(holder.mLayout.getChildAt(0));
@@ -157,11 +176,13 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView myTextView;
         ReactViewGroup mRVG;
-        LinearLayout mLayout;
+        public boolean mRegisteredForInflating = false;
+        FrameLayout mLayout;
 
-        ViewHolder(LinearLayout itemView) {
+        ViewHolder(FrameLayout itemView) {
             super(itemView);
             mLayout = itemView;
+            mLayout.setBackgroundColor(Color.MAGENTA);
            // myTextView = itemView.findViewById(R.id.tvAnimalName);
             itemView.setOnClickListener(this);
 //            mRVG = itemView.findViewById(R.id.tvAnimalName2);

@@ -12,19 +12,6 @@
 #include "AndroidErrorHandler.h"
 #include "AndroidScheduler.h"
 
-#if __has_include(<RNReanimated/Scheduler.h>)
-#include <RNReanimated/Scheduler.h>
-#include <RNReanimated/ShareableValue.h>
-#include <RNReanimated/RuntimeManager.h>
-#include <RNReanimated/RuntimeDecorator.h>
-#include <RNReanimated/ErrorHandler.h>
-#else
-#include "Scheduler.h"
-#include "ShareableValue.h"
-#include "RuntimeManager.h"
-#include "RuntimeDecorator.h"
-#include "ErrorHandler.h"
-#endif
 
 
 using namespace facebook;
@@ -60,43 +47,7 @@ private:
                               jni::alias_ref<AndroidScheduler::javaobject> androidScheduler) {
 
         auto runtime = reinterpret_cast<jsi::Runtime*>(jsiRuntimePointer);
-
-        auto jsCallInvoker = jsCallInvokerHolder->cthis()->getCallInvoker();
-        auto scheduler = androidScheduler->cthis()->getScheduler();
-        scheduler->setJSCallInvoker(jsCallInvoker);
-
-        auto makeScheduler = [scheduler]() -> std::shared_ptr<reanimated::Scheduler> {
-            return scheduler;
-        };
-        auto makeErrorHandler = [](const std::shared_ptr<reanimated::Scheduler>& scheduler_) -> std::shared_ptr<reanimated::ErrorHandler> {
-            return std::make_shared<reanimated::AndroidErrorHandler>(scheduler_);
-        };
-        auto makeJsExecutor = []() -> std::unique_ptr<jsi::Runtime> {
-            __android_log_write(ANDROID_LOG_INFO, TAG, "Creating JSExecutorFactory..");
-            try {
-                std::shared_ptr<react::ExecutorDelegate> delegate = std::shared_ptr<react::ExecutorDelegate>();
-                std::shared_ptr<react::MessageQueueThread> jsQueue = std::shared_ptr<react::MessageQueueThread>();
-
-                auto jsExecutorFactory = makeJSExecutorFactory();
-                __android_log_write(ANDROID_LOG_INFO, TAG, "Creating JSExecutor..");
-                auto executor = jsExecutorFactory->createJSExecutor(delegate,
-                                                                    jsQueue);
-                auto runtimePointer = static_cast<jsi::Runtime*>(executor->getJavaScriptContext());
-                __android_log_write(ANDROID_LOG_INFO, TAG, "JSExecutor created!");
-
-                // I need to release the local shared_ptr because otherwise the returned jsi::Runtime will be destroyed immediately.
-                auto _ = executor.release();
-
-                return std::unique_ptr<jsi::Runtime>(runtimePointer);
-            } catch (std::exception& exc) {
-                // Fatal error - the runtime can't be created at all.
-                __android_log_write(ANDROID_LOG_ERROR, TAG, "Failed to create JSExecutor!");
-                __android_log_write(ANDROID_LOG_ERROR, TAG, exc.what());
-                abort();
-            }
-        };
-        mrousavy::multithreading::installSimple(*runtime, makeJsExecutor, makeScheduler, makeErrorHandler);
-     //   mrousavy::multithreading::install(*runtime, makeJsExecutor, makeScheduler, makeErrorHandler);
+        mrousavy::multithreading::installSimple(*runtime);
 
     }
 };
@@ -143,8 +94,7 @@ Java_reactnativemmkv_UltimateNativeModule_getValue(JNIEnv *env, jclass clazz, js
 
     // Generate random integers in range 0 to 999
     // int rand_int1 = rand.nextInt(1000);
-    double x = mrousavy::multithreading::getValue(slabel);
-    return x;
+ return 1;
 }
 extern "C"
 JNIEXPORT void JNICALL

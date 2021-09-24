@@ -1,10 +1,13 @@
 package reactnativemmkv;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
@@ -23,10 +26,10 @@ import java.util.Set;
 class CellStorage extends ReactViewGroup {
 
   static class InflationRequests {
-    private LinearLayout mView;
+    private FrameLayout mView;
     private int mPosition;
     UltimateNativeModule mModule;
-    InflationRequests(LinearLayout view, int position, UltimateNativeModule module) {
+    InflationRequests(FrameLayout view, int position, UltimateNativeModule module) {
       mView = view;
       mPosition = position;
       mModule = module;
@@ -46,14 +49,12 @@ class CellStorage extends ReactViewGroup {
     }
   }
 
-  public int mNumberOfCells = 0;
+  public int mNumberOfCells = 1;
   private ThemedReactContext mContext;
   UltimateNativeModule mModule;
 
 
-  public void increaseNumberOfCells() {
-    // maybe by 1 but doesn;t work
-    mNumberOfCells+=1;
+  private void sendMoreCellsEvent() {
     WritableMap mExtraData = Arguments.createMap();
     mExtraData.putInt("cells", mNumberOfCells);
     mContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(new Event(mContext.getSurfaceId(), getId()) {
@@ -63,10 +64,85 @@ class CellStorage extends ReactViewGroup {
       }
 
       @Override
+      public boolean canCoalesce() {
+        return false;
+      }
+
+      @Override
       protected WritableMap getEventData() {
         return mExtraData;
       }
     });
+    WritableMap mExtraData2 = Arguments.createMap();
+    mExtraData2.putInt("cells", mNumberOfCells);
+    mContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(new Event(mContext.getSurfaceId(), getId()) {
+      @Override
+      public String getEventName() {
+        return "onMoreRowsNeededBackup";
+      }
+
+      @Override
+      public boolean canCoalesce() {
+        return false;
+      }
+
+      @Override
+      protected WritableMap getEventData() {
+        return mExtraData2;
+      }
+    });
+  }
+
+  public void increaseNumberOfCells() {
+    mNumberOfCells+=1;
+    sendMoreCellsEvent();
+    Log.d("HHHH", "sending event that we need more cells ie " + mNumberOfCells);
+
+  }
+
+  @Override
+  protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    super.onLayout(changed, left, top, right, bottom);
+    Log.d("On layout", "xxxxx????");
+
+    sendMoreCellsEvent();
+  }
+
+  @Override
+  protected void onAttachedToWindow() {
+    super.onAttachedToWindow();
+    Log.d("On FFFFF", "xxxxx????");
+
+  }
+  private boolean mWasTripled = false;
+  private boolean mWasTryingToTriple = false;
+
+  private void triple() {
+    if (mWasTripled) {
+      return;
+    }
+    mWasTryingToTriple = true;
+    Log.d("Tripling", "Trying to triple" + " having:" + getChildCount() + "expected " + mNumberOfCells);
+    if (getChildCount() == mNumberOfCells) {
+      mWasTripled = true;
+      mNumberOfCells *= 3;
+      sendMoreCellsEvent();
+    }
+  }
+
+  @Override
+  protected void dispatchDraw(Canvas canvas) {
+    super.dispatchDraw(canvas);
+    Log.d("<On disparch", "xxxxx????" + getChildCount() + " " + mNumberOfCells);
+    triple();
+
+  }
+
+  @Override
+  protected void onDraw(Canvas canvas) {
+    super.onDraw(canvas);
+    Log.d("<On drawwww", "xxxxx????");
+    //sendMoreCellsEvent();
   }
 
   int mMinWidth;
@@ -76,14 +152,16 @@ class CellStorage extends ReactViewGroup {
 
   private Queue<InflationRequests> mViewsNeedingInflating = new ArrayDeque();
 
-  public void registerViewNeedingInflating(LinearLayout view, int position) {
+  public void registerViewNeedingInflating(FrameLayout view, int position) {
     mViewsNeedingInflating.add(new InflationRequests(view, position, mModule));
   }
+
 
   @Override
   public void addView(View child, int index, LayoutParams params) {
     //notifySomeViewIsReady((ViewGroup) child);
     super.addView(child, index, params);
+
     Log.d("[added]", "Views" + getChildCount());
   }
 
@@ -100,7 +178,7 @@ class CellStorage extends ReactViewGroup {
 
   public void notifySomeViewIsReady() {
     ViewGroup row = getFirstNonEmptyChild();
-    if (row instanceof ViewGroup) {
+    if (row != null) {
       notifySomeViewIsReady(row);
     }
   }
