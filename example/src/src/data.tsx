@@ -27,7 +27,8 @@ const data: DataCell[] = [
 let moreData: DataCell[] = [];
 
 for (let i = 0; i < 1000; i++) {
-  moreData = data.concat(moreData);
+
+  moreData = moreData.concat(data);
 }
 
 // let moreData2: DataCell[] = [];

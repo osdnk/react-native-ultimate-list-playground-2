@@ -102,24 +102,13 @@ Java_reactnativemmkv_UltimateNativeModule_setUIPointerThread(JNIEnv *env, jclass
                                                              jlong jsi_ptr) {
     // TODO: implement setUIPointerThread()
 }
-extern "C"
-JNIEXPORT jbyteArray JNICALL
-Java_reactnativemmkv_MmkvModule_getStringValueAtIndexByKey(JNIEnv *env, jclass clazz, jint index,
-                                                           jstring key) {
-//    auto runtime = reinterpret_cast<jsi::Runtime*>(jsiPtr);
-    std::string value = mrousavy::multithreading::obtainStringValueAtIndexByKey(index, jstring2string(env, key));
-    int byteCount = value.length();
-    jbyte* pNativeMessage = const_cast<jbyte *>(reinterpret_cast<const jbyte *>(value.c_str()));
-    jbyteArray bytes = env->NewByteArray(byteCount);
-    env->SetByteArrayRegion(bytes, 0, byteCount, pNativeMessage);
-    return  bytes;
-}
+
 extern "C"
 JNIEXPORT jbyteArray JNICALL
 Java_reactnativemmkv_UltimateNativeModule_getStringValueAtIndexByKey(JNIEnv *env, jclass clazz,
-                                                                     jint index, jstring key) {
+                                                                     jint index, jstring key, jint id) {
     // TODO: implement getStringValueAtIndexByKey()
-    std::string value = mrousavy::multithreading::obtainStringValueAtIndexByKey(index, jstring2string(env, key));
+    std::string value = mrousavy::multithreading::obtainStringValueAtIndexByKey(index, jstring2string(env, key), id);
     int byteCount = value.length();
     jbyte* pNativeMessage = const_cast<jbyte *>(reinterpret_cast<const jbyte *>(value.c_str()));
     jbyteArray bytes = env->NewByteArray(byteCount);

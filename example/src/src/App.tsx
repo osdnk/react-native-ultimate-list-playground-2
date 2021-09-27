@@ -113,6 +113,7 @@ export default function App() {
         setVisible(false);
         setTimeout(() => setVisible(true), 1000)
       }} />
+      {/*<RecyclerView/>*/}
       <AnimatedStyleUpdateExample/>
     </View>
   );

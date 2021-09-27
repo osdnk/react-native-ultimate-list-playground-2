@@ -1,8 +1,10 @@
 package reactnativemmkv;
 
 
+import android.content.Context;
 import android.graphics.Color;
 import android.provider.CalendarContract;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,25 +13,57 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.views.view.ReactViewGroup;
 
+
+class CusFrameLayout extends FrameLayout {
+    public CusFrameLayout(Context context) {
+        super(context);
+    }
+
+    public CusFrameLayout(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public CusFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    private final Runnable measureAndLayout = () -> {
+        measure(
+                MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.EXACTLY));
+        layout(getLeft(), getTop(), getRight(), getBottom());
+    };
+
+    @Override
+    public void requestLayout() {
+        super.requestLayout();
+        post(measureAndLayout);
+        getViewTreeObserver().dispatchOnGlobalLayout();
+    }
+}
+
 class JSValueGetter {
   private int mPosition;
+  private int mId;
   private UltimateNativeModule mModule;
   public String getJSValue(String name) {
-    String v = mModule.stringValueAtIndexByKey(mPosition, name);
+    String v = mModule.stringValueAtIndexByKey(mPosition, name, mId);
 //    if (v.equals("XXXX")) {
 //      return getJSValue(name);
 //    }
     return v;
   }
 
-  public JSValueGetter(int position, UltimateNativeModule module) {
+  public JSValueGetter(int position, UltimateNativeModule module, int id) {
     mModule = module;
     mPosition = position;
+    mId = id;
   }
 }
 
@@ -73,7 +107,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         CellStorage storage = (CellStorage) vg.getChildAt(0);
         ViewGroup row = (ViewGroup) storage.getFirstNonEmptyChild();
       //  if (row == null) {
-        FrameLayout view = new FrameLayout(mContext);
+        FrameLayout view = new CusFrameLayout(mContext);
 //          view.setMinimumHeight(storage.mMinHeight);
 //          view.setMinimumWidth(storage.mMinWidth);
           ViewGroup.LayoutParams params = new FrameLayout.LayoutParams(storage.mMinWidth, storage.mMinHeight);
@@ -100,16 +134,20 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
   // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+//      holder.
         //String animal = String.valueOf(mModule.valueAtIndex(position));
        // ((ReactTextView)((ViewGroup) holder.mLayout.getChildAt(0)).getChildAt(1)).setText(animal);
         ViewGroup recyclerRow = (ViewGroup) holder.mLayout.getChildAt(0);
         Log.d("XXX", "number of children " + holder.mLayout.getChildCount());
-        JSValueGetter valueGetter = new JSValueGetter(position, mModule);
+        JSValueGetter valueGetter = new JSValueGetter(position, mModule, mRecyclerViewList.mId);
+
         //holder.mLayout.getLayoutParams().height = position % 6 == 2 ? 400 : 200;
         //holder.mLayout.setLayoutParams(new LinearLayout.LayoutParams(holder.mLayout.getWidth(), holder.mLayout.getHeight()));
 
         if (recyclerRow instanceof RecyclerRow) {
           ((RecyclerRow)recyclerRow).recycle(position, valueGetter);
+         // ((RecyclerRow) recyclerRow).tryResizing();
+         // ((RecyclerRow) recyclerRow).post(((RecyclerRow) recyclerRow)::tryResizing);
 
          // holder.mLayout.setLayoutParams(new LinearLayout.LayoutParams(recyclerRow.getWidth(), recyclerRow.getHeight()));
 
@@ -122,10 +160,15 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
           if (rowWrapper != null) {
               Log.d("XXX", "Reparenting, v new size " + rowWrapper.getHeight());
               RecyclerRow row = (RecyclerRow) rowWrapper.getChildAt(0);
-              ((RecyclerRow)row).recycle(position, valueGetter);
+                ((RecyclerRow)row).recycle(position, valueGetter);
+              row.mIgnoreResizing = 5;
               rowWrapper.removeView(row);
               holder.mLayout.removeView(recyclerRow);
               holder.mLayout.addView(row);
+//              holder.mLayout.getLayoutParams().height = row.getHeight();
+//              holder.mLayout.requestLayout();
+//              row.mScheduleForResizing = true;
+//              row.post(row::tryResizing);
            //   holder.mLayout.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.WRAP_CONTENT, RecyclerView.LayoutParams.WRAP_CONTENT));
           //    holder.mLayout.setLayoutParams(new LinearLayout.LayoutParams(row.getWidth(), row.getHeight()));
 
@@ -134,7 +177,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
           } else {
               if (!holder.mRegisteredForInflating) {
-                  vgv.registerViewNeedingInflating(holder.mLayout, position);
+                  vgv.registerViewNeedingInflating(holder.mLayout, position, mRecyclerViewList.mId);
                   holder.mRegisteredForInflating = true;
               }
               Log.d("XXX", "waiting for new rows, expected " + vgv.mNumberOfCells + "having: " + vgv.getChildCount());
@@ -179,6 +222,13 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         public boolean mRegisteredForInflating = false;
         FrameLayout mLayout;
 
+        private final Runnable measureAndLayout = () -> {
+            mLayout.measure(
+                    View.MeasureSpec.makeMeasureSpec(mLayout.getWidth(), View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(mLayout.getHeight(), View.MeasureSpec.EXACTLY));
+            mLayout.layout(mLayout.getLeft(), mLayout.getTop(), mLayout.getRight(), mLayout.getBottom());
+        };
+
         ViewHolder(FrameLayout itemView) {
             super(itemView);
             mLayout = itemView;
@@ -186,10 +236,25 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
            // myTextView = itemView.findViewById(R.id.tvAnimalName);
             itemView.setOnClickListener(this);
 //            mRVG = itemView.findViewById(R.id.tvAnimalName2);
+
+         //   mLayout.getLayoutParams().height = 300;
+//            new Thread(() -> {
+//                try {
+//                    Thread.sleep(5000);
+//                    mLayout.getLayoutParams().height = 600;
+//                    mLayout.getLayoutParams().width = 500;
+//                    mLayout.requestLayout();
+//                    mLayout.post(measureAndLayout);
+//                }
+//                catch (Exception e){
+//                    System.err.println(e);
+//                }
+//            }).start();
         }
 
         @Override
         public void onClick(View view) {
+            Log.d("DSD", "ASDAD");
             if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
         }
     }

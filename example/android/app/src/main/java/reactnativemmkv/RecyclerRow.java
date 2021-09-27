@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.UIManagerModule;
@@ -65,26 +66,40 @@ class RecyclerRow extends ReactViewGroup {
   @Override
   public void setLayoutParams(LayoutParams params) {
     super.setLayoutParams(params);
+    Log.d("new sized", "SIZE " + getMeasuredHeight());
     if (getParent() instanceof FrameLayout) {
       ((FrameLayout) getParent()).setLayoutParams(params);
     }
   }
 
-  @Override
-  protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-    super.onLayout(changed, left, top, right, bottom);
-    ViewParent maybeStorage = getParent().getParent();
-    if (maybeStorage instanceof CellStorage) {
-      ((CellStorage) maybeStorage).notifySomeViewIsReady();
-    }
-
+  private int setHeight = 0;
+  public int mIgnoreResizing = 2;
+  public void tryResizing() {
     if (getParent().getParent() instanceof RecyclerView) {
-
-      if (((FrameLayout) getParent()).getLayoutParams().height != bottom - top) {
+//      if (mIgnoreResizing != 0) {
+//        mIgnoreResizing--;
+//        return;
+//      }
+      if (setHeight == getBottom() - getTop()) {
+      //  return;
+      }
+      Log.d("Setting L to parent", "GGGG " + setHeight);
+      setHeight = getBottom() - getTop();
+      if (((FrameLayout) getParent()).getBottom() != ((FrameLayout) getParent()).getTop() + getBottom() - getTop()) {
+        ((FrameLayout) getParent()).layout(
+                ((FrameLayout) getParent()).getLeft(),
+                ((FrameLayout) getParent()).getTop(),
+                ((FrameLayout) getParent()).getRight(),
+                ((FrameLayout) getParent()).getTop() + getBottom() - getTop());
+      };
 //
-       ((FrameLayout) getParent()).getLayoutParams().height = bottom - top;
-        getParent().requestLayout();
-      //  getParent().getParent().requestLayout();
+//        UiThreadUtil.runOnUiThread(() -> {
+//                 ((FrameLayout) getParent()).getLayoutParams().height = bottom - top;
+//                 getParent().requestLayout();
+//        });
+//
+        //       getParent().requestLayout();
+//        getParent().getParent().requestLayout();
         //((RecyclerView) getParent().getParent()).getAdapter().notifyItemChanged();
 
         // ((RecyclerView) getParent().getParent()).requestLayout();
@@ -92,15 +107,54 @@ class RecyclerRow extends ReactViewGroup {
 //        ((FrameLayout) getParent()).setLayoutParams(
 //                new FrameLayout.LayoutParams(((FrameLayout) getParent()).getLayoutParams())
 //        );
-      }
+     // }
 
     }
+  }
+
+
+  @Override
+  protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    super.onLayout(changed, left, top, right, bottom);
+    ViewParent maybeStorage = getParent().getParent();
+    Log.d("XXXXXXX", "New size" + (bottom - top));
+    if (maybeStorage instanceof CellStorage) {
+      ((CellStorage) maybeStorage).notifySomeViewIsReady();
+    }
+    //if (changed) {
+     // tryResizing();
+    if (getParent().getParent() instanceof RecyclerView) {
+
+
+//      if (((FrameLayout) getParent()).getBottom() != ((FrameLayout) getParent()).getTop() + 100) {
+//        ((FrameLayout) getParent()).layout(
+//                ((FrameLayout) getParent()).getLeft(),
+//                ((FrameLayout) getParent()).getTop(),
+//                ((FrameLayout) getParent()).getRight(),
+//                ((FrameLayout) getParent()).getTop() + 100);
+//      }
+     // ;
+    }
+    //}
+
+
 //      getParent().requestLayout();
 
   //Log.d("XXX2", "Rendered a child od size " + (bottom - top));
 
 
   }
+
+//  @Override
+//  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+//    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+//    if (getParent().getParent() instanceof RecyclerView) {
+//      ((FrameLayout)getParent()).getLayoutParams().height = heightMeasureSpec;
+//      ((FrameLayout)getParent()).getLayoutParams().width = widthMeasureSpec;
+//      getParent().requestLayout();
+//    }
+//
+//    }
 
   public RecyclerRow(ThemedReactContext context) {
     super(context);

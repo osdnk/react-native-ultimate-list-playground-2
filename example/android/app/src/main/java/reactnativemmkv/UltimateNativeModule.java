@@ -63,16 +63,16 @@ class UltimateNativeModule extends ReactContextBaseJavaModule {
    // installPointerGetter(sAnimatedRuntimeAddress);
   }
 
-  public static native byte[] getStringValueAtIndexByKey(int index, String key);
+  public static native byte[] getStringValueAtIndexByKey(int index, String key, int id);
 
-  public String stringValueAtIndexByKey(int index, String key) {
+  public String stringValueAtIndexByKey(int index, String key, int id) {
    // return "XXXXXXXX";
 //    NativeProxy x = context.getNativeModule(ReanimatedModule.class).getNodesManager().getNativeProxy();
 //    Class c = NativeProxy.class;
 //    Field m[] = c.getFields();
 //    for (int i = 0; i < m.length; i++)
 //      System.out.println(m[i].toString());
-    byte[] bytes = getStringValueAtIndexByKey(index, key);
+    byte[] bytes = getStringValueAtIndexByKey(index, key, id);
     return new String(bytes, StandardCharsets.UTF_8);
   }
 

@@ -16,15 +16,21 @@ using namespace facebook;
 namespace mrousavy {
 namespace multithreading {
 
+    std::mutex mtx;
+    std::unordered_map<int, std::shared_ptr<ShareableNativeValue>> valueMap;
 
     std::shared_ptr<ShareableNativeValue> dataValue2 = nullptr;
-    std::string obtainStringValueAtIndexByKey(int index, std::string label) {
-        if (dataValue2 == nullptr) {
+    std::string obtainStringValueAtIndexByKey(int index, std::string label, int id) {
+        mtx.lock();
+        auto dataValue3 = valueMap[id];
+        if (dataValue3 == nullptr) {
+            mtx.unlock();
             return "XXXX";
         }
 
-        if (dataValue2->isArray()) {
-            auto valueAtIndex = ((ArrayNativeWrapper*) dataValue2->valueContainer.get())->getValueAtIndex(index);
+
+        if (dataValue3->isArray()) {
+            auto valueAtIndex = ((ArrayNativeWrapper*) dataValue3->valueContainer.get())->getValueAtIndex(index);
             if (valueAtIndex->isObject()) {
                 auto givenData = valueAtIndex;
                 size_t pos;
@@ -36,10 +42,12 @@ namespace multithreading {
                 }
                 auto property = ((ObjectNativeWrapper*) givenData->valueContainer.get())->getProperty(label);
                 if (property->isString()) {
+                    mtx.unlock();
                     return ((StringNativeWrapper*) property->valueContainer.get())->getValue();
                 }
             }
         }
+        mtx.unlock();
         return "VVV";
 
     }
@@ -51,13 +59,29 @@ namespace multithreading {
 
 
         auto setDataS = jsi::Function::createFromHostFunction(runtime,
-                                                             jsi::PropNameID::forAscii(runtime, "setDataS"),
-                                                             1,  // run
-                                                             [](jsi::Runtime& cruntime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
-                                                                 dataValue2 = ShareableNativeValue::adapt(cruntime, arguments[0]);
-                                                                 return jsi::Value();
-                                                             });
+                                                              jsi::PropNameID::forAscii(runtime, "setDataS"),
+                                                              2,  // run
+                                                              [](jsi::Runtime& cruntime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+                                                                  mtx.lock();
+                                                                  dataValue2 = ShareableNativeValue::adapt(cruntime, arguments[0]);
+                                                                  int id = arguments[1].asNumber();
+                                                                  valueMap[id] = dataValue2;
+                                                                  mtx.unlock();
+                                                                  return jsi::Value();
+                                                              });
         runtime.global().setProperty(runtime, "setDataS", std::move(setDataS));
+
+        auto removeDataS = jsi::Function::createFromHostFunction(runtime,
+                                                              jsi::PropNameID::forAscii(runtime, "removeDataS"),
+                                                              1,   // run
+                                                              [](jsi::Runtime& cruntime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+                                                                  mtx.lock();
+                                                                  int id = arguments[0].asNumber();
+                                                                  valueMap.erase(id);
+                                                                  mtx.unlock();
+                                                                  return jsi::Value();
+                                                              });
+        runtime.global().setProperty(runtime, "removeDataS", std::move(removeDataS));
 
     }
 

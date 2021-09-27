@@ -12,6 +12,7 @@ class RecyclerListView extends LinearLayout {
   private ThemedReactContext context;
   MyRecyclerViewAdapter adapter;
   int mCount = -1;
+  int mId = -1;
   int mRlv = -1;
 
   public RecyclerListView(ThemedReactContext context) {

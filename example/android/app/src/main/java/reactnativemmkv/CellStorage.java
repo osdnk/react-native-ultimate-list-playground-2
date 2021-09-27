@@ -28,11 +28,13 @@ class CellStorage extends ReactViewGroup {
   static class InflationRequests {
     private FrameLayout mView;
     private int mPosition;
+    private int mId;
     UltimateNativeModule mModule;
-    InflationRequests(FrameLayout view, int position, UltimateNativeModule module) {
+    InflationRequests(FrameLayout view, int position, UltimateNativeModule module, int id) {
       mView = view;
       mPosition = position;
       mModule = module;
+      mId = id;
     }
 
     public void inflate(ViewGroup rowWrapper) {
@@ -44,7 +46,7 @@ class CellStorage extends ReactViewGroup {
         mView.removeView(viewToRemove);
         mView.addView(row);
         //}
-        row.recycle(mPosition, new JSValueGetter(mPosition, mModule));
+        row.recycle(mPosition, new JSValueGetter(mPosition, mModule, mId));
       }
     }
   }
@@ -125,7 +127,7 @@ class CellStorage extends ReactViewGroup {
     Log.d("Tripling", "Trying to triple" + " having:" + getChildCount() + "expected " + mNumberOfCells);
     if (getChildCount() == mNumberOfCells) {
       mWasTripled = true;
-      mNumberOfCells *= 3;
+      mNumberOfCells *= 2;
       sendMoreCellsEvent();
     }
   }
@@ -134,7 +136,7 @@ class CellStorage extends ReactViewGroup {
   protected void dispatchDraw(Canvas canvas) {
     super.dispatchDraw(canvas);
     Log.d("<On disparch", "xxxxx????" + getChildCount() + " " + mNumberOfCells);
-    triple();
+    //triple();
 
   }
 
@@ -152,8 +154,8 @@ class CellStorage extends ReactViewGroup {
 
   private Queue<InflationRequests> mViewsNeedingInflating = new ArrayDeque();
 
-  public void registerViewNeedingInflating(FrameLayout view, int position) {
-    mViewsNeedingInflating.add(new InflationRequests(view, position, mModule));
+  public void registerViewNeedingInflating(FrameLayout view, int position, int id) {
+    mViewsNeedingInflating.add(new InflationRequests(view, position, mModule, id));
   }
 
 

@@ -22,6 +22,12 @@ public class RecyclerViewManager extends ViewGroupManager<RecyclerListView> {
     view.mCount = count;
   }
 
+
+  @ReactProp(name = "id")
+  public void setId(RecyclerListView view, int id) {
+    view.mId = id;
+  }
+
 //  @ReactProp(name = "animatedRuntimeAddress")
 //  public void setAnimatedRuntimeAddress(RecyclerListView view, String animatedRuntimeAddress) {
 //    Log.d("XXX", animatedRuntimeAddress);

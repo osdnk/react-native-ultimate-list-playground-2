@@ -23,6 +23,8 @@ import { ReText } from 'react-native-redash';
 import { runOnUI } from 'react-native-reanimated';
 import type { SharedValue } from 'react-native-reanimated/src/reanimated2/commonTypes';
 import { cloneDeep } from "lodash"
+import { useImmediateEffect } from './useImmediateEffect';
+
 
 const someWorklet = (greeting) => {
   console.log(greeting, 'From the UI thread');
@@ -168,7 +170,7 @@ function UltraFastText({ binding }: { binding: string }) {
 
 const AnimatedCellStorage = Animated.createAnimatedComponent(CellStorage)
 
-const PRERENDERED_CELLS = 1;
+const PRERENDERED_CELLS = 4;
 
 function RecyclableViews({ children }: { children: React.ReactChild }) {
   const [cells, setCells] = useState<number>(1  )
@@ -190,7 +192,7 @@ function RecyclableViews({ children }: { children: React.ReactChild }) {
       }
     }} >
       {/* TODO make better render counting  */}
-      {[...Array(Math.max(PRERENDERED_CELLS, cells))].map((_, index) => (
+      {[...Array(Math.max(PRERENDERED_CELLS, cells + 2))].map((_, index) => (
         <RecyclerRowWrapper
               initialPosition={index}
               key={`rl-${index}`}
@@ -206,6 +208,8 @@ function RecyclableViews({ children }: { children: React.ReactChild }) {
   );
 }
 
+let id = 0;
+
 function RecyclerView<TData>({
                                style,
                                children,
@@ -216,6 +220,14 @@ function RecyclerView<TData>({
 }) {
   // @ts-ignore
   //global.setData(data)
+
+  const [currId] = useState<number>(() => id++)
+
+  useImmediateEffect(() => {
+    global.setDataS(data, currId)
+    return () => global.removeDataS(currId)
+  }, [data])
+
   const datas = useDerivedValue(() => data, [data]);
   return (
     <RawDataContext.Provider value={data}>
@@ -223,6 +235,7 @@ function RecyclerView<TData>({
       <View style={style} removeClippedSubviews={false}>
         <RecyclableViews>{children}</RecyclableViews>
         <RecyclerListView
+          id={currId}
           count={data.length}
           style={StyleSheet.absoluteFillObject}
         />
@@ -272,13 +285,14 @@ function ContactCell() {
   return (
     <RecyclerRow
       style={{
-        height: reactiveData?.color === "green" ? 200 : 100,
+        //height: reactiveData?.color === "green" ? 200 : 100,
 
       }}
     >
     <View
       style={[{
-        height: reactiveData?.color === "green" ? 200 : 100,
+       // height: reactiveData?.color === "green" ? 200 : 100,
+        height: 100,
         borderWidth: 2,
         backgroundColor: 'grey',
         justifyContent: 'center',
@@ -315,7 +329,7 @@ function ContactCell() {
       {/*</UltraFastSwtich>*/}
 
       {/*<UltraFastText binding={name} />*/}
-      <ReText text={text} />
+      <ReText text={text} style={{ width: 150 }} />
 
       {/*<RecyclableText style={{ width: '70%' }}>Beata Kozidrak</RecyclableText>*/}
     </View>
@@ -331,6 +345,7 @@ function ContactCell() {
 // setInterval(() => console.log(global.setData), 100)
 console.log("setting 1")
 
+//global.setDataS(data)
 
 
 export default function Example() {
@@ -341,11 +356,9 @@ export default function Example() {
   //   return data
   // })
   console.log("setting 3")
-  global.setDataS(data)
-
-
 
   return (
+    <>
     <RecyclerView<DataCell>
       //  layoutProvider={layoutProvider}
       //layoutTypeExtractor={layoutTypeExtractor} // all called before rendering
@@ -355,5 +368,7 @@ export default function Example() {
     >
       <ContactCell />
     </RecyclerView>
+      </>
+
   );
 }
