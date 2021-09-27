@@ -20,9 +20,13 @@ using namespace facebook;
 namespace mrousavy {
 namespace multithreading {
 
+    static auto constexpr kJavaDescriptor =
+            "Lcom/swmansion/reanimated/NativeProxy$AnimationFrameCallback;";
+
     std::string obtainStringValueAtIndexByKey(int index, std::string label, int id);
 
     void installSimple(jsi::Runtime& cruntime);
+    void setNotifyNewData(std::function<void (int)> notifier);
 
 
 }

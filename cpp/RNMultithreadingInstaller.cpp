@@ -18,7 +18,7 @@ namespace multithreading {
 
     std::mutex mtx;
     std::unordered_map<int, std::shared_ptr<ShareableNativeValue>> valueMap;
-
+    std::shared_ptr<std::function<void (int)>> notifyNewData;
     std::shared_ptr<ShareableNativeValue> dataValue2 = nullptr;
     std::string obtainStringValueAtIndexByKey(int index, std::string label, int id) {
         mtx.lock();
@@ -52,10 +52,14 @@ namespace multithreading {
 
     }
 
+    void setNotifyNewData(std::function<void (int)> notifier) {
+        notifyNewData = std::make_shared<std::function<void (int)>>(notifier);
+
+    }
+
 
 
     void installSimple(jsi::Runtime& runtime) {
-
 
 
         auto setDataS = jsi::Function::createFromHostFunction(runtime,
@@ -67,6 +71,10 @@ namespace multithreading {
                                                                   int id = arguments[1].asNumber();
                                                                   valueMap[id] = dataValue2;
                                                                   mtx.unlock();
+                                                                  auto notify = notifyNewData.get();
+                                                                  if (notify != nullptr) {
+                                                                      notify->operator()(id);
+                                                                  }
                                                                   return jsi::Value();
                                                               });
         runtime.global().setProperty(runtime, "setDataS", std::move(setDataS));
@@ -84,6 +92,10 @@ namespace multithreading {
         runtime.global().setProperty(runtime, "removeDataS", std::move(removeDataS));
 
     }
+
+
+
+
 
 } // namespace multithreading
 } // namespace mrousavy

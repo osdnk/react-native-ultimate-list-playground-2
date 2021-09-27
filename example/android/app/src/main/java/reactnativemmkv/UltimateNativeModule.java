@@ -4,9 +4,11 @@ import static com.reactnativemultithreading.MultithreadingModule.sScheduler;
 
 import android.util.Log;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 
 import com.facebook.fbreact.specs.NativeFileReaderModuleSpec;
+import com.facebook.proguard.annotations.DoNotStrip;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.JSApplicationCausedNativeException;
 import com.facebook.react.bridge.ReactContext;
@@ -20,16 +22,22 @@ import com.swmansion.reanimated.ReanimatedModule;
 
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.WeakHashMap;
 //import com.reactnativemmkv.MmkvModule;
 
 @ReactModule(name = "UltimateNative")
-class UltimateNativeModule extends ReactContextBaseJavaModule {
+@Keep
+public class UltimateNativeModule extends ReactContextBaseJavaModule {
   static {
     System.loadLibrary("reanimated");
   }
+
+  static public Map<Integer, RecyclerListView> sLists = new WeakHashMap<>();
 
   private static native long getValue(String label);
   private static native void setUIPointerThread(long jsiPtr);
@@ -42,6 +50,8 @@ class UltimateNativeModule extends ReactContextBaseJavaModule {
   public UltimateNativeModule(ReactContext reactContext) {
     super();
     this.context = reactContext;
+    notifyNewData(1);
+    setNotifier();
   }
 
   @ReactMethod
@@ -63,7 +73,16 @@ class UltimateNativeModule extends ReactContextBaseJavaModule {
    // installPointerGetter(sAnimatedRuntimeAddress);
   }
 
+  @Keep
+  @DoNotStrip
+  public static void notifyNewData(int id) {
+    RecyclerListView list = sLists.get(id);
+    //list.notifyNewData()
+    Log.d("New data", "For" + id);
+  }
+
   public static native byte[] getStringValueAtIndexByKey(int index, String key, int id);
+  public static native void setNotifier();
 
   public String stringValueAtIndexByKey(int index, String key, int id) {
    // return "XXXXXXXX";

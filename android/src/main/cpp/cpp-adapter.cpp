@@ -46,6 +46,7 @@ private:
                               jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder,
                               jni::alias_ref<AndroidScheduler::javaobject> androidScheduler) {
 
+
         auto runtime = reinterpret_cast<jsi::Runtime*>(jsiRuntimePointer);
         mrousavy::multithreading::installSimple(*runtime);
 
@@ -84,6 +85,8 @@ std::string jstring2string(JNIEnv *env, jstring jStr) {
     return ret;
 }
 
+JavaVM* g_jvm = 0;
+
 
 
 extern "C"
@@ -107,11 +110,52 @@ extern "C"
 JNIEXPORT jbyteArray JNICALL
 Java_reactnativemmkv_UltimateNativeModule_getStringValueAtIndexByKey(JNIEnv *env, jclass clazz,
                                                                      jint index, jstring key, jint id) {
-    // TODO: implement getStringValueAtIndexByKey()
     std::string value = mrousavy::multithreading::obtainStringValueAtIndexByKey(index, jstring2string(env, key), id);
     int byteCount = value.length();
     jbyte* pNativeMessage = const_cast<jbyte *>(reinterpret_cast<const jbyte *>(value.c_str()));
     jbyteArray bytes = env->NewByteArray(byteCount);
     env->SetByteArrayRegion(bytes, 0, byteCount, pNativeMessage);
     return  bytes;
+}
+
+bool GetJniEnv(JavaVM *vm, JNIEnv **env) {
+    bool did_attach_thread = false;
+    *env = nullptr;
+    // Check if the current thread is attached to the VM
+    auto get_env_result = vm->GetEnv((void**)env, JNI_VERSION_1_6);
+    if (get_env_result == JNI_EDETACHED) {
+        if (vm->AttachCurrentThread(env, NULL) == JNI_OK) {
+            did_attach_thread = true;
+        } else {
+            // Failed to attach thread. Throw an exception if you want to.
+        }
+    } else if (get_env_result == JNI_EVERSION) {
+        // Unsupported JNI version. Throw an exception if you want to.
+    }
+    return did_attach_thread;
+}
+
+
+
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_reactnativemmkv_UltimateNativeModule_setNotifier(JNIEnv *env, jclass clazz) {
+    //jclass thisClass = env->GetObjectClass(clazz);
+
+
+    env->GetJavaVM(&g_jvm);
+
+    auto notifyNewDataCallback = [](int id) {
+        JNIEnv* env2;
+        g_jvm->AttachCurrentThread(&env2, NULL);
+        jclass cls2 = env2->FindClass("reactnativemmkv/UltimateNativeModule");
+        jmethodID notifyNewData = env2->GetStaticMethodID(cls2, "notifyNewData", "(I)V");
+        env2->CallStaticVoidMethod(cls2, notifyNewData, id);
+
+    };
+   // notifyNewDataCallback(1);
+    mrousavy::multithreading::setNotifyNewData(notifyNewDataCallback);
+    //std::function<void (int)> c = notifyNewDataCallback;
+
 }

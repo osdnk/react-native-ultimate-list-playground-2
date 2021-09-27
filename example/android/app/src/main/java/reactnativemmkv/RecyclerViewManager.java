@@ -1,5 +1,7 @@
 package reactnativemmkv;
 
+import static reactnativemmkv.UltimateNativeModule.sLists;
+
 import android.util.Log;
 
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -26,6 +28,7 @@ public class RecyclerViewManager extends ViewGroupManager<RecyclerListView> {
   @ReactProp(name = "id")
   public void setId(RecyclerListView view, int id) {
     view.mId = id;
+    sLists.put(id, view);
   }
 
 //  @ReactProp(name = "animatedRuntimeAddress")
