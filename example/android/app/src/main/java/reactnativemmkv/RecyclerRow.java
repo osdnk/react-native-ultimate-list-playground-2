@@ -22,6 +22,7 @@ import java.util.Set;
 class RecyclerRow extends ReactViewGroup {
   private ThemedReactContext context;
   private int mPosition = -1;
+  private JSValueGetter mCachedValueGetter;
   public String mType;
   private Set<Integer> ultraFastChildren = new HashSet<>();
 
@@ -34,6 +35,10 @@ class RecyclerRow extends ReactViewGroup {
       UltraFastAbstractComponentWrapper component = (UltraFastAbstractComponentWrapper) findViewById(id);
       component.setValue(valueGetter.getJSValue(component.mBinding));
     }
+  }
+
+  public void renotifyUltraFastEvents() {
+    notifyUltraFastEvents(mCachedValueGetter);
   }
 
   public void setInitialPosition(int position) {
@@ -60,6 +65,7 @@ class RecyclerRow extends ReactViewGroup {
   }
 
   public void recycle(int position, JSValueGetter valueGetter) {
+    mCachedValueGetter = valueGetter;
     notifyUltraFastEvents(valueGetter);
     notifyReanimatedComponents(position);
   }

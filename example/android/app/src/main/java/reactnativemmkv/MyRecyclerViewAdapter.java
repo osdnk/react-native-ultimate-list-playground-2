@@ -81,7 +81,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private ThemedReactContext mContext;
     private RecyclerListView mRecyclerViewList;
     private UltimateNativeModule mModule;
-    private View mView;
+    public View mView;
     // data is passed into the constructor
 
 

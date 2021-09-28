@@ -78,7 +78,10 @@ public class UltimateNativeModule extends ReactContextBaseJavaModule {
   @DoNotStrip
   public static void notifyNewData(int id) {
     RecyclerListView list = sLists.get(id);
-    //list.notifyNewData()
+    if (list != null) {
+      list.notifyNewData();
+    }
+
     Log.d("New data", "For" + id);
   }
 

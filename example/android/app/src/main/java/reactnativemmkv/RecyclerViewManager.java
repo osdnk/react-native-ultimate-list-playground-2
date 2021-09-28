@@ -28,6 +28,7 @@ public class RecyclerViewManager extends ViewGroupManager<RecyclerListView> {
   @ReactProp(name = "id")
   public void setId(RecyclerListView view, int id) {
     view.mId = id;
+    // TODO osdnk also removing
     sLists.put(id, view);
   }
 
