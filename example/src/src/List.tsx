@@ -3,6 +3,7 @@ import React, {
   useRef,
   useState,
   createContext,
+  Children,
   useContext, useMemo,
 } from 'react';
 import { View, Text, StyleSheet, ViewStyle, NativeModules } from 'react-native';
@@ -12,7 +13,7 @@ import {
   RecyclerRow as RawRecyclerRow, RecyclerRowWrapper as RawRecyclerRowWrapper,
   UltraFastTextWrapper,
 } from './ultimate';
-import { data, DataCell, data2 } from './data';
+import { data, DataCell } from './data';
 import Animated, {
   useSharedValue,
   useDerivedValue,
@@ -172,20 +173,29 @@ const AnimatedCellStorage = Animated.createAnimatedComponent(CellStorage)
 
 const PRERENDERED_CELLS = 4;
 
-function RecyclableViews({ children }: { children: React.ReactChild }) {
+function RecyclableViews({ viewTypes }: { viewTypes: { [_ :string]: JSX.Element } }) {
+
+  return Object.entries(viewTypes).map(([type, child]) => (
+    <RecyclableViewsByType key={`rlvv-${type}`} type={type}>
+      {child}
+    </RecyclableViewsByType>
+  ));
+}
+
+function RecyclableViewsByType({ children, type }: { children: React.ReactChild, type: string }) {
   const [cells, setCells] = useState<number>(1  )
   const onMoreRowsNeededHandler = useAnimatedRecycleHandler({
     onMoreRowsNeeded: e => {
       'worklet';
       console.log("Ok, now we neeed " + e.cells)
       runOnJS(setCells)(e.cells)
-    //  console.log(e)
+      //  console.log(e)
     }
   }, [setCells])
-    console.log("rendering " + cells + "cells")
+  console.log("rendering " + cells + "cells");
   // use reanimated event here and animated reaction
   return (
-    <AnimatedCellStorage  style={{ opacity: 0.1 }} onMoreRowsNeeded={onMoreRowsNeededHandler} onMoreRowsNeededBackup={e => {
+    <AnimatedCellStorage  style={{ opacity: 0.1 }} type={type} onMoreRowsNeeded={onMoreRowsNeededHandler} onMoreRowsNeededBackup={e => {
       const cellsn = e.nativeEvent.cells;
       if (cellsn > cells) {
         setCells(cellsn);
@@ -194,13 +204,12 @@ function RecyclableViews({ children }: { children: React.ReactChild }) {
       {/* TODO make better render counting  */}
       {[...Array(Math.max(PRERENDERED_CELLS, cells + 2))].map((_, index) => (
         <RecyclerRowWrapper
-              initialPosition={index}
-              key={`rl-${index}`}
-              //initialPosition={index}
+          initialPosition={index}
+          key={`rl-${index}`}
+          //initialPosition={index}
         >
           <InitialPositionContext.Provider value={index}>
-
-              {children}
+            {children}
           </InitialPositionContext.Provider>
         </RecyclerRowWrapper>
       ))}
@@ -213,18 +222,23 @@ let id = 0;
 function RecyclerView<TData>({
                                style,
                                children,
+                               data,
+                               viewTypes
+
                              }: {
   style: ViewStyle;
   children: any;
   data: TData[];
+  viewTypes: { [_ :string]: JSX.Element }
 }) {
   // @ts-ignore
   //global.setData(data)
 
   const [currId] = useState<number>(() => id++)
+  const newData = data.map((d, i) => ({ type: i %2 === 0 ? "type1" : "type2", data: d }))
 
   useImmediateEffect(() => {
-    global.setDataS(data, currId)
+    global.setDataS(newData, currId)
     return () => global.removeDataS(currId)
   }, [data])
 
@@ -233,7 +247,7 @@ function RecyclerView<TData>({
     <RawDataContext.Provider value={data}>
     <DataContext.Provider value={datas}>
       <View style={style} removeClippedSubviews={false}>
-        <RecyclableViews>{children}</RecyclableViews>
+        <RecyclableViews viewTypes={viewTypes}>{}</RecyclableViews>
         <RecyclerListView
           id={currId}
           count={data.length}
@@ -284,55 +298,77 @@ function ContactCell() {
 
   return (
     <RecyclerRow
+      type="type1"
       style={{
         //height: reactiveData?.color === "green" ? 200 : 100,
 
       }}
     >
-    <View
-      style={[{
-       // height: reactiveData?.color === "green" ? 200 : 100,
-        height: 100,
-        borderWidth: 2,
-        backgroundColor: 'grey',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'row',
-      }]}
+      <View
+        style={[{
+          // height: reactiveData?.color === "green" ? 200 : 100,
+          height: 100,
+          borderWidth: 2,
+          backgroundColor: 'grey',
+          justifyContent: 'center',
+          alignItems: 'center',
+          flexDirection: 'row',
+        }]}
+      >
+        <Animated.View
+          style={[
+            {
+              backgroundColor: reactiveData?.color,
+              width: 60,
+              height: 60,
+              borderRadius: 30,
+              marginRight: 20,
+            },
+          ]}
+        />
+        <Animated.View
+          style={[
+            circleStyle,
+            {
+              width: 60,
+              height: 60,
+              borderRadius: 30,
+              marginRight: 20,
+            },
+          ]}
+        />
+        <UltraFastText binding={prof} />
+        {/*<UltraFastText binding={name} />*/}
+        {/*<UltraFastSwtich binding={"type"} >*/}
+        {/*  <UltraFastCase type="loading"/>*/}
+        {/*</UltraFastSwtich>*/}
+
+        {/*<UltraFastText binding={name} />*/}
+        <ReText text={text} style={{ width: 150 }} />
+
+        {/*<RecyclableText style={{ width: '70%' }}>Beata Kozidrak</RecyclableText>*/}
+      </View>
+    </RecyclerRow>
+  );
+}
+
+
+function ContactCell2() {
+
+  const {
+    name,
+  } = useUltraFastData<DataCell>(); // const prof = "nested.prof"
+
+  return (
+    <RecyclerRow
+      type="type2"
+      style={{
+        height: 200,
+        //height: reactiveData?.color === "green" ? 200 : 100,
+
+      }}
     >
-      <Animated.View
-        style={[
-          {
-            backgroundColor: reactiveData?.color,
-            width: 60,
-            height: 60,
-            borderRadius: 30,
-            marginRight: 20,
-          },
-        ]}
-      />
-      <Animated.View
-        style={[
-          circleStyle,
-          {
-            width: 60,
-            height: 60,
-            borderRadius: 30,
-            marginRight: 20,
-          },
-        ]}
-      />
-      <UltraFastText binding={prof} />
-      {/*<UltraFastText binding={name} />*/}
-      {/*<UltraFastSwtich binding={"type"} >*/}
-      {/*  <UltraFastCase type="loading"/>*/}
-      {/*</UltraFastSwtich>*/}
-
-      {/*<UltraFastText binding={name} />*/}
-      <ReText text={text} style={{ width: 150 }} />
-
-      {/*<RecyclableText style={{ width: '70%' }}>Beata Kozidrak</RecyclableText>*/}
-    </View>
+        <UltraFastText binding={name} />
     </RecyclerRow>
   );
 }
@@ -347,8 +383,12 @@ console.log("setting 1")
 
 //global.setDataS(data)
 
+function useRowTypesLayout(descriptors: () =>  ({ [key :string]: JSX.Element }), deps: any[] = []) {
 
-export default function Example() {
+  return useMemo(descriptors, [deps])
+}
+
+export default function Example({ data } : { data: DataCell[] }) {
  // global.setDataS([])
   //global.setData(data)
   // global.setData(() => {
@@ -357,16 +397,22 @@ export default function Example() {
   // })
   console.log("setting 3")
 
+  const viewTypes = useRowTypesLayout(() => ({
+    type1: <ContactCell/>,
+    type2: <ContactCell2/>
+  }))
   return (
     <>
     <RecyclerView<DataCell>
       //  layoutProvider={layoutProvider}
       //layoutTypeExtractor={layoutTypeExtractor} // all called before rendering
       data={data}
+      viewTypes={viewTypes}
       style={{ width: '100%', height: 300 }}
       //layoutProvider={layoutProvider}
     >
       <ContactCell />
+      <ContactCell2 />
     </RecyclerView>
       </>
 

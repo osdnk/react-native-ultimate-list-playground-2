@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,6 +19,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.views.view.ReactViewGroup;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 class CusFrameLayout extends FrameLayout {
@@ -100,11 +104,42 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         mModule = context.getNativeModule(UltimateNativeModule.class);
     }
 
+    private CellStorage findStorageByType(ViewGroup parent, String type) {
+      int childrenCount = parent.getChildCount();
+      for (int i = 0 ; i < childrenCount; i++) {
+          CellStorage child = (CellStorage) parent.getChildAt(i);
+          if (child.mType.equals(type)) {
+              return child;
+          }
+      }
+      return null;
+    }
+
     // inflates the row layout from xml when needed
+
+    private Map<String, Integer> typeNamesToInt = new HashMap<>();
+    private Map<Integer, String> IntToTypeName = new HashMap<>();
+    @Override
+    public int getItemViewType(int position) {
+
+
+        String type = mModule.typeAtIndex(position, mRecyclerViewList.mId);
+        if (typeNamesToInt.containsKey(type)) {
+            return typeNamesToInt.get(type);
+        }
+        int newId = typeNamesToInt.size();
+        typeNamesToInt.put(type, newId);
+        IntToTypeName.put(newId, type);
+        // Just as an example, return 0 or 2 depending on position
+        // Note that unlike in ListView adapters, types don't have to be contiguous
+        return newId;
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        String type = IntToTypeName.get(viewType);
         ViewGroup vg = ((ViewGroup) mView.getParent().getParent().getParent().getParent());
-        CellStorage storage = (CellStorage) vg.getChildAt(0);
+        CellStorage storage = findStorageByType(vg, type);
         ViewGroup row = (ViewGroup) storage.getFirstNonEmptyChild();
       //  if (row == null) {
         FrameLayout view = new CusFrameLayout(mContext);
@@ -134,6 +169,8 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
   // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        int viewType = holder.getItemViewType();
+        String type = IntToTypeName.get(viewType);
 //      holder.
         //String animal = String.valueOf(mModule.valueAtIndex(position));
        // ((ReactTextView)((ViewGroup) holder.mLayout.getChildAt(0)).getChildAt(1)).setText(animal);
@@ -155,7 +192,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
           Log.d("XXX", "having a child, recycling " + recyclerRow.getHeight());
       } else {
           ViewGroup vg = ((ViewGroup) mView.getParent().getParent().getParent().getParent());
-          CellStorage vgv = (CellStorage) vg.getChildAt(0);
+          CellStorage vgv = findStorageByType(vg, type);
           ViewGroup rowWrapper = (ViewGroup) vgv.getFirstNonEmptyChild();
           if (rowWrapper != null) {
               Log.d("XXX", "Reparenting, v new size " + rowWrapper.getHeight());

@@ -6,9 +6,9 @@ import { c } from './Benchmarks';
 import RecyclerView from './List';
 import AnimatedStyleUpdateExample from './ChatHeads';
 import Animated, { runOnJS } from 'react-native-reanimated';
-import { data } from './data';
 import { useImmediateEffect } from './useImmediateEffect';
 import { useState } from 'react';
+import {data2, data as data1} from "./data"
 
 //const storage = new MMKV();
 
@@ -101,17 +101,26 @@ export default function App() {
   // })
   //console.warn(Date.now() - time)
   const [visible, setVisible] = useState<boolean>(true);
+  const [altered, setAltered] = useState<boolean>(false)
   if (!visible) {
     return null;
   }
 
+
+
+  const data = altered ? data2 : data1
+  console.log({ altered })
+
   return (
     <View style={styles.container}>
 
-      <RecyclerView/>
+      <RecyclerView data={data}/>
       <Button title={"reset"} onPress={() => {
         setVisible(false);
         setTimeout(() => setVisible(true), 1000)
+      }} />
+      <Button title={"Alter data"} onPress={() => {
+        setAltered(prev => !prev)
       }} />
       {/*<RecyclerView/>*/}
       <AnimatedStyleUpdateExample/>

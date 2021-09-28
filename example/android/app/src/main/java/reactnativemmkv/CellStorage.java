@@ -24,7 +24,7 @@ import java.util.Set;
 
 
 class CellStorage extends ReactViewGroup {
-
+  public String mType;
   static class InflationRequests {
     private FrameLayout mView;
     private int mPosition;

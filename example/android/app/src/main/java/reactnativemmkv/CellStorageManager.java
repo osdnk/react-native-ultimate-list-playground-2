@@ -9,6 +9,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
+import com.facebook.react.uimanager.annotations.ReactProp;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
@@ -33,6 +34,11 @@ class CellStorageManager extends ViewGroupManager<CellStorage> {
   @Override
   public CellStorage createViewInstance(ThemedReactContext context) {
     return new CellStorage(context);
+  }
+
+  @ReactProp(name = "type")
+  public void setType(CellStorage view, String type) {
+    view.mType = type;
   }
 
   @Override

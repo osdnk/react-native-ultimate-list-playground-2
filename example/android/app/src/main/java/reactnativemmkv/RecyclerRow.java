@@ -22,6 +22,7 @@ import java.util.Set;
 class RecyclerRow extends ReactViewGroup {
   private ThemedReactContext context;
   private int mPosition = -1;
+  public String mType;
   private Set<Integer> ultraFastChildren = new HashSet<>();
 
   public void addUltraFastChildren(int id) {

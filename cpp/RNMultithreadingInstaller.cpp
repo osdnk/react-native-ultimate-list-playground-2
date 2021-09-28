@@ -32,7 +32,7 @@ namespace multithreading {
         if (dataValue3->isArray()) {
             auto valueAtIndex = ((ArrayNativeWrapper*) dataValue3->valueContainer.get())->getValueAtIndex(index);
             if (valueAtIndex->isObject()) {
-                auto givenData = valueAtIndex;
+                auto givenData = ((ObjectNativeWrapper *)(valueAtIndex->valueContainer.get()))->getProperty("data");
                 size_t pos;
                 std::string token;
                 while ((pos = label.find('.')) != std::string::npos) {
@@ -44,6 +44,30 @@ namespace multithreading {
                 if (property->isString()) {
                     mtx.unlock();
                     return ((StringNativeWrapper*) property->valueContainer.get())->getValue();
+                }
+            }
+        }
+        mtx.unlock();
+        return "VVV";
+
+    }
+
+    std::string obtainTypeAtIndexBy(int index, int id) {
+        mtx.lock();
+        auto dataValue3 = valueMap[id];
+        if (dataValue3 == nullptr) {
+            mtx.unlock();
+            return "XXXX";
+        }
+
+
+        if (dataValue3->isArray()) {
+            auto valueAtIndex = ((ArrayNativeWrapper*) dataValue3->valueContainer.get())->getValueAtIndex(index);
+            if (valueAtIndex->isObject()) {
+                auto givenData = ((ObjectNativeWrapper *)(valueAtIndex->valueContainer.get()))->getProperty("type");
+                if (givenData->isString()) {
+                    mtx.unlock();
+                    return ((StringNativeWrapper*)(givenData.get()->valueContainer.get()))->getValue();
                 }
             }
         }

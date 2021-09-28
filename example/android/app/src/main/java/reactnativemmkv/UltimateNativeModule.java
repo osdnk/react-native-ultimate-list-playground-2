@@ -41,6 +41,7 @@ public class UltimateNativeModule extends ReactContextBaseJavaModule {
 
   private static native long getValue(String label);
   private static native void setUIPointerThread(long jsiPtr);
+  private static native byte[] getTypeAtIndex(int index, int id);
 //  private static native void installPointerGetter(long animatedRuntimeAddress);
 
   public long sAnimatedRuntimeAddress = -1;
@@ -85,13 +86,24 @@ public class UltimateNativeModule extends ReactContextBaseJavaModule {
   public static native void setNotifier();
 
   public String stringValueAtIndexByKey(int index, String key, int id) {
-   // return "XXXXXXXX";
+    // return "XXXXXXXX";
 //    NativeProxy x = context.getNativeModule(ReanimatedModule.class).getNodesManager().getNativeProxy();
 //    Class c = NativeProxy.class;
 //    Field m[] = c.getFields();
 //    for (int i = 0; i < m.length; i++)
 //      System.out.println(m[i].toString());
     byte[] bytes = getStringValueAtIndexByKey(index, key, id);
+    return new String(bytes, StandardCharsets.UTF_8);
+  }
+
+  public String typeAtIndex(int index, int id) {
+    // return "XXXXXXXX";
+//    NativeProxy x = context.getNativeModule(ReanimatedModule.class).getNodesManager().getNativeProxy();
+//    Class c = NativeProxy.class;
+//    Field m[] = c.getFields();
+//    for (int i = 0; i < m.length; i++)
+//      System.out.println(m[i].toString());
+    byte[] bytes = getTypeAtIndex(index, id);
     return new String(bytes, StandardCharsets.UTF_8);
   }
 
