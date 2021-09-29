@@ -75,6 +75,30 @@ namespace ultimatelist {
 
     }
 
+    std::string obtainHashValueAtIndex(int index, int id) {
+        mtx.lock();
+        auto dataValue3 = valueMap[id];
+        if (dataValue3 == nullptr) {
+            mtx.unlock();
+            return "XXXX";
+        }
+
+
+        if (dataValue3->isArray()) {
+            auto valueAtIndex = ((ArrayNativeWrapper*) dataValue3->valueContainer.get())->getValueAtIndex(index);
+            if (valueAtIndex->isObject()) {
+                auto givenData = ((ObjectNativeWrapper *)(valueAtIndex->valueContainer.get()))->getProperty("hash");
+                if (givenData->isString()) {
+                    mtx.unlock();
+                    return ((StringNativeWrapper*)(givenData.get()->valueContainer.get()))->getValue();
+                }
+            }
+        }
+        mtx.unlock();
+        return "VVV";
+
+    }
+
     int obtainCount(int id) {
         mtx.lock();
         auto dataValue3 = valueMap[id];

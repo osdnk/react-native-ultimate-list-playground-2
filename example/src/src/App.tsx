@@ -94,7 +94,7 @@ export default function App() {
   // })
 
 
-  // useState(() => { 
+  // useState(() => {
   //
   //   //result()
   //
@@ -128,7 +128,7 @@ export default function App() {
         setAltered(prev => !prev)
       }} />
       {/*<RecyclerView/>*/}
-      <AnimatedStyleUpdateExample/>
+      {/*<AnimatedStyleUpdateExample/>*/}
     </View>
   );
 }

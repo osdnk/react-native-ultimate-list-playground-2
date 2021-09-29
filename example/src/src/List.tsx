@@ -231,13 +231,15 @@ function RecyclerView<TData>({
                                data,
                                layoutProvider,
                                getViewType = () => "type",
-                               getIsSticky = () => false
+                               getIsSticky = () => false,
+                               getHash
                              }: {
   style: ViewStyle;
   data: TData[];
   layoutProvider: { [_ :string]: Descriptor },
   getViewType: (data: TData, i : number) => string
   getIsSticky: (data: TData, type: string, i : number) => boolean
+  getHash: (data: TData, i : number) => string
 }) {
   // @ts-ignore
   //global.setData(data)
@@ -246,17 +248,18 @@ function RecyclerView<TData>({
   const traversedData = useMemo(() => data.map(((row, index) => {
     const type = getViewType(row, index);
     const sticky = getIsSticky(row, type, index)
+    const hash = getHash(row, index)
     return ({
-      data: row, type, sticky
+      data: row, type, sticky, hash
     })
-  })), [data])
+  })), [data, getIsSticky, getIsSticky, getHash])
 
   useImmediateEffect(() => {
     global.setDataS(traversedData, currId)
     return () => global.removeDataS(currId)
   }, [traversedData])
 
-  const datas = useDerivedValue(() => data, [data]);
+  const datas = useDerivedValue(() => data, []);
   return (
     <GestureHandlerRootView>
       <RawDataContext.Provider value={data}>
@@ -286,8 +289,8 @@ function RecyclerView<TData>({
 // HERE starts example
 function ContactCell() {
   const data = useSharedDataAtIndex();
-  const reactiveData = useReactiveDataAtIndex();
-  console.log(reactiveData)
+  //const reactiveData = useReactiveDataAtIndex();
+  //console.log(reactiveData)
   const text = useDerivedValue(() => data.value?.name ?? data?.name ??'NONE');
   const color = useDerivedValue(() => {
     const name = data.value?.name ?? '';
@@ -335,17 +338,17 @@ function ContactCell() {
           flexDirection: 'row',
         }]}
       >
-        <Animated.View
-          style={[
-            {
-              backgroundColor: reactiveData?.color,
-              width: 60,
-              height: 60,
-              borderRadius: 30,
-              marginRight: 20,
-            },
-          ]}
-        />
+        {/*<Animated.View*/}
+        {/*  style={[*/}
+        {/*    {*/}
+        {/*      backgroundColor: reactiveData?.color,*/}
+        {/*      width: 60,*/}
+        {/*      height: 60,*/}
+        {/*      borderRadius: 30,*/}
+        {/*      marginRight: 20,*/}
+        {/*    },*/}
+        {/*  ]}*/}
+        {/*/>*/}
         <Animated.View
           style={[
             circleStyle,
@@ -447,7 +450,8 @@ export default function Example({ data } : { data: DataCell[] }) {
   }))
 
   const getViewType = useCallback((d) => d.index === 0 ? "header" : d.index %2 === 0 ? "type1" : "type2", [])
-  const isSticky = useCallback((_, __, i) => false, [])
+  const isSticky = useCallback((_, __, i) => i === 0, [])
+  const getHash = useCallback((d) => d.name, [])
 
   return (
     <>
@@ -455,8 +459,9 @@ export default function Example({ data } : { data: DataCell[] }) {
       getViewType={getViewType}
       data={data}
       getIsSticky={isSticky}
+      getHash={getHash}
       layoutProvider={layoutProvider}
-      style={{ width: '100%', height: 300 }}
+      style={{ width: '100%', height: 600 }}
     />
       </>
 

@@ -129,6 +129,13 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private RecyclerListView mRecyclerViewList;
     private UltimateNativeModule mModule;
     public View mView;
+
+    @Override
+    public long getItemId(int position) {
+        int id = mModule.hashAtIndex(position, mRecyclerViewList.mId).hashCode();
+        return id;
+    }
+
     // data is passed into the constructor
 
 
@@ -167,10 +174,10 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private Map<String, Integer> typeNamesToInt = new HashMap<>();
     private Map<Integer, String> IntToTypeName = new HashMap<>();
 
-    @Override
-    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-        dragDropHelper.attach(recyclerView, dragDropHelperCallback);
-    }
+//    @Override
+//    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+//        dragDropHelper.attach(recyclerView, dragDropHelperCallback);
+//    }
 
     @Override
     public int getItemViewType(int position) {
@@ -194,16 +201,10 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         ViewGroup vg = ((ViewGroup) mView.getParent().getParent().getParent().getParent());
         CellStorage storage = findStorageByType(vg, type);
         ViewGroup row = (ViewGroup) storage.getFirstNonEmptyChild();
-      //  if (row == null) {
         FrameLayout view = new CusFrameLayout(mContext);
-//          view.setMinimumHeight(storage.mMinHeight);
-//          view.setMinimumWidth(storage.mMinWidth);
           ViewGroup.LayoutParams params = new FrameLayout.LayoutParams(storage.mMinWidth, storage.mMinHeight);
-          Log.d("Storage size", " szie" + storage.mMinWidth +  " " + storage.mMinHeight);
-
           view.setLayoutParams(params);
           storage.increaseNumberOfCells();
-          Log.d("DDDD", "We need more cells");
           return new ViewHolder(view);
 //        } else {
 //          RecyclerRow viewToReparent = (RecyclerRow) row.getChildAt(0);

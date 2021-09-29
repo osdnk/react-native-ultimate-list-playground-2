@@ -122,6 +122,18 @@ Java_reactnativemmkv_UltimateNativeModule_getStringValueAtIndexByKey(JNIEnv *env
 
 extern "C"
 JNIEXPORT jbyteArray JNICALL
+Java_reactnativemmkv_UltimateNativeModule_getHashAtIndex(JNIEnv *env, jclass clazz,
+                                                                     jint index, jint id) {
+    std::string value = osdnk::ultimatelist::obtainHashValueAtIndex(index, id);
+    int byteCount = value.length();
+    jbyte* pNativeMessage = const_cast<jbyte *>(reinterpret_cast<const jbyte *>(value.c_str()));
+    jbyteArray bytes = env->NewByteArray(byteCount);
+    env->SetByteArrayRegion(bytes, 0, byteCount, pNativeMessage);
+    return  bytes;
+}
+
+extern "C"
+JNIEXPORT jbyteArray JNICALL
 Java_reactnativemmkv_UltimateNativeModule_getTypeAtIndex(JNIEnv *env, jclass clazz,
                                                          jint index, jint id) {
     std::string value = osdnk::ultimatelist::obtainTypeAtIndexByKey(index, id);

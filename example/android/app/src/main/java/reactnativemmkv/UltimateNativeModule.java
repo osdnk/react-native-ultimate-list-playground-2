@@ -42,6 +42,7 @@ public class UltimateNativeModule extends ReactContextBaseJavaModule {
   private static native long getValue(String label);
   private static native void setUIPointerThread(long jsiPtr);
   private static native byte[] getTypeAtIndex(int index, int id);
+  private static native byte[] getHashAtIndex(int index, int id);
 //  private static native void installPointerGetter(long animatedRuntimeAddress);
 
   public long sAnimatedRuntimeAddress = -1;
@@ -96,6 +97,11 @@ public class UltimateNativeModule extends ReactContextBaseJavaModule {
   }
 
   public String typeAtIndex(int index, int id) {
+    byte[] bytes = getTypeAtIndex(index, id);
+    return new String(bytes, StandardCharsets.UTF_8);
+  }
+
+  public String hashAtIndex(int index, int id) {
     byte[] bytes = getTypeAtIndex(index, id);
     return new String(bytes, StandardCharsets.UTF_8);
   }

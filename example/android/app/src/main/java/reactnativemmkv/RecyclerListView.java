@@ -1,12 +1,12 @@
 package reactnativemmkv;
 
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ScrollKiller;
 
 import com.example.reactnativemultithreading.R;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -23,6 +23,15 @@ class RecyclerListView extends LinearLayout {
     MyRecyclerViewAdapter adapter = (MyRecyclerViewAdapter) view.getAdapter();
     if (adapter != null) {
       adapter.notifyDataSetChanged();
+      //adapter.notifyItemRangeRemoved(3, 3);
+      // TODO osdnk
+      ScrollKiller.dontDoThisConsumePendingUpdateOperations(view);
+      //view.scrollTo(view.getScrollX(), view.getScrollY() + 30);
+      //ScrollResetter.setScrollState(0, view);
+//      view.getLayoutManager().requestLayout();
+//      view.forceLayout();
+      //view.requestLayout();
+    //  view.scrollToPosition(view.getScrollState());
     }
     int childrenCount = view.getChildCount();
     for (int i = 0 ; i < childrenCount; i++) {
@@ -42,8 +51,10 @@ class RecyclerListView extends LinearLayout {
     this.context = context;
     inflate(context, R.layout.activity_main, this);
     RecyclerView recyclerView = findViewById(R.id.rvAnimals);
-    recyclerView.setLayoutManager(new StickyHeadersLinearLayoutManager(context));
+    recyclerView.setLayoutManager(new StickyHeadersLinearLayoutManager<>(context));
+    //recyclerView.setLayoutManager(new LinearLayoutManager(context));
     adapter = new MyRecyclerViewAdapter(context, recyclerView, this);
+    adapter.setHasStableIds(true);
     recyclerView.setAdapter(adapter);
   }
 }
