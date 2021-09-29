@@ -7,7 +7,7 @@ import RecyclerView from './List';
 import AnimatedStyleUpdateExample from './ChatHeads';
 import Animated, { runOnJS } from 'react-native-reanimated';
 import { useImmediateEffect } from './useImmediateEffect';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {data2, data as data1} from "./data"
 
 //const storage = new MMKV();
@@ -94,21 +94,23 @@ export default function App() {
   // })
 
 
-  // useState(() => {
+  // useState(() => { 
   //
   //   //result()
   //
   // })
   //console.warn(Date.now() - time)
   const [visible, setVisible] = useState<boolean>(true);
+  const [cut, setCut] = useState<boolean>(false);
   const [altered, setAltered] = useState<boolean>(false)
+
+
+
+
+  const data = useMemo(() => (altered ? data2 : data1).filter((_, i) => !cut || (i > 5 || i < 3 )), [altered, cut])
   if (!visible) {
     return null;
   }
-
-
-
-  const data = altered ? data2 : data1
   console.log({ altered })
 
   return (
@@ -118,6 +120,9 @@ export default function App() {
       <Button title={"reset"} onPress={() => {
         setVisible(false);
         setTimeout(() => setVisible(true), 1000)
+      }} />
+      <Button title={"CUT"} onPress={() => {
+        setCut(prev => !prev)
       }} />
       <Button title={"Alter data"} onPress={() => {
         setAltered(prev => !prev)

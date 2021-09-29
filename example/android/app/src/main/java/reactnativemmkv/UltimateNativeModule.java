@@ -86,28 +86,26 @@ public class UltimateNativeModule extends ReactContextBaseJavaModule {
   }
 
   public static native byte[] getStringValueAtIndexByKey(int index, String key, int id);
+  public static native boolean getIsHeaderAtIndex(int index, int id);
+  public static native int getLength(int id);
   public static native void setNotifier();
 
   public String stringValueAtIndexByKey(int index, String key, int id) {
-    // return "XXXXXXXX";
-//    NativeProxy x = context.getNativeModule(ReanimatedModule.class).getNodesManager().getNativeProxy();
-//    Class c = NativeProxy.class;
-//    Field m[] = c.getFields();
-//    for (int i = 0; i < m.length; i++)
-//      System.out.println(m[i].toString());
     byte[] bytes = getStringValueAtIndexByKey(index, key, id);
     return new String(bytes, StandardCharsets.UTF_8);
   }
 
   public String typeAtIndex(int index, int id) {
-    // return "XXXXXXXX";
-//    NativeProxy x = context.getNativeModule(ReanimatedModule.class).getNodesManager().getNativeProxy();
-//    Class c = NativeProxy.class;
-//    Field m[] = c.getFields();
-//    for (int i = 0; i < m.length; i++)
-//      System.out.println(m[i].toString());
     byte[] bytes = getTypeAtIndex(index, id);
     return new String(bytes, StandardCharsets.UTF_8);
+  }
+
+  public boolean isHeaderAtIndex(int index, int id) {
+    return getIsHeaderAtIndex(index, id);
+  }
+
+  public int length(int id) {
+    return getLength(id);
   }
 
   @NonNull

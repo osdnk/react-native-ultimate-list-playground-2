@@ -25,6 +25,7 @@ import { runOnUI } from 'react-native-reanimated';
 import type { SharedValue } from 'react-native-reanimated/src/reanimated2/commonTypes';
 import { cloneDeep } from "lodash"
 import { useImmediateEffect } from './useImmediateEffect';
+import { GestureHandlerRootView, NativeViewGestureHandler } from 'react-native-gesture-handler';
 
 
 const someWorklet = (greeting) => {
@@ -227,42 +228,54 @@ let id = 0;
 
 function RecyclerView<TData>({
                                style,
-                               children,
                                data,
                                layoutProvider,
-                               getViewType
+                               getViewType = () => "type",
+                               getIsSticky = () => false
                              }: {
   style: ViewStyle;
-  children: any;
   data: TData[];
   layoutProvider: { [_ :string]: Descriptor },
-  getViewType: (i : number) => string
+  getViewType: (data: TData, i : number) => string
+  getIsSticky: (data: TData, type: string, i : number) => boolean
 }) {
   // @ts-ignore
   //global.setData(data)
 
   const [currId] = useState<number>(() => id++)
-  const newData = data.map((d, i) => ({ type: getViewType(i),  data: d }))
+  const traversedData = useMemo(() => data.map(((row, index) => {
+    const type = getViewType(row, index);
+    const sticky = getIsSticky(row, type, index)
+    return ({
+      data: row, type, sticky
+    })
+  })), [data])
 
   useImmediateEffect(() => {
-    global.setDataS(newData, currId)
+    global.setDataS(traversedData, currId)
     return () => global.removeDataS(currId)
-  }, [data])
+  }, [traversedData])
 
   const datas = useDerivedValue(() => data, [data]);
   return (
-    <RawDataContext.Provider value={data}>
-    <DataContext.Provider value={datas}>
-      <View style={style} removeClippedSubviews={false}>
-        <RecyclableViews viewTypes={layoutProvider}>{}</RecyclableViews>
-        <RecyclerListView
-          id={currId}
-          count={data.length}
-          style={StyleSheet.absoluteFillObject}
-        />
-      </View>
-    </DataContext.Provider>
-    </RawDataContext.Provider>
+    <GestureHandlerRootView>
+      <RawDataContext.Provider value={data}>
+      <DataContext.Provider value={datas}>
+        <View style={style} removeClippedSubviews={false}>
+          <RecyclableViews viewTypes={layoutProvider}>{}</RecyclableViews>
+          {/*<NativeViewGestureHandler*/}
+          {/*  shouldActivateOnStart*/}
+          {/*>*/}
+            <RecyclerListView
+              id={currId}
+              count={data.length}
+              style={StyleSheet.absoluteFillObject}
+            />
+          {/*</NativeViewGestureHandler>*/}
+        </View>
+      </DataContext.Provider>
+      </RawDataContext.Provider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -433,19 +446,18 @@ export default function Example({ data } : { data: DataCell[] }) {
     type2: <ContactCell2/>
   }))
 
-  const getViewType = useCallback((i) => i === 0 ? "header" : i %2 === 0 ? "type1" : "type2", [])
+  const getViewType = useCallback((d) => d.index === 0 ? "header" : d.index %2 === 0 ? "type1" : "type2", [])
+  const isSticky = useCallback((_, __, i) => false, [])
 
   return (
     <>
     <RecyclerView<DataCell>
       getViewType={getViewType}
       data={data}
+      getIsSticky={isSticky}
       layoutProvider={layoutProvider}
       style={{ width: '100%', height: 300 }}
-    >
-      <ContactCell />
-      <ContactCell2 />
-    </RecyclerView>
+    />
       </>
 
   );

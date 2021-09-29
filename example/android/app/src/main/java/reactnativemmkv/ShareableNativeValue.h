@@ -10,6 +10,7 @@
 #include <unordered_map>
 
 enum class ValueType {
+    BoolType,
     StringType,
     ArrayType,
     ObjectType,
@@ -35,6 +36,10 @@ public:
     inline bool isObject() {
         return type == ValueType::ObjectType;
     }
+
+    inline bool isBool() {
+        return type == ValueType::BoolType;
+    }
 };
 
 class ObjectNativeWrapper : ValueNativeWrapper {
@@ -51,6 +56,9 @@ private:
 class ArrayNativeWrapper : ValueNativeWrapper {
 public:
     std::shared_ptr<ShareableNativeValue> getValueAtIndex(long i);
+    inline int length() {
+        return this->value.size();
+    };
     static std::shared_ptr<ValueNativeWrapper> create(jsi::Runtime &rt, jsi::Array value);
 private:
     std::vector<std::shared_ptr<ShareableNativeValue>> value;
@@ -63,6 +71,15 @@ public:
     static std::shared_ptr<ValueNativeWrapper> create(jsi::Runtime &rt, jsi::String value);
 private:
     std::string value;
+
+};
+
+class BooleanNativeWrapper : ValueNativeWrapper {
+public:
+    bool getValue();
+    static std::shared_ptr<ValueNativeWrapper> create(jsi::Runtime &rt, bool value);
+private:
+    bool value;
 
 };
 

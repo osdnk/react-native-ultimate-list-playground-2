@@ -13,10 +13,8 @@
 #include <react/jni/CxxModuleWrapper.h>
 #include <react/jni/JMessageQueueThread.h>
 #include "ErrorHandler.h"
-#include "Scheduler.h"
 #include <jni.h>
 #include <memory>
-#include <fbjni/fbjni.h>
 #include "Logger.h"
 
 
@@ -125,13 +123,29 @@ Java_reactnativemmkv_UltimateNativeModule_getStringValueAtIndexByKey(JNIEnv *env
 extern "C"
 JNIEXPORT jbyteArray JNICALL
 Java_reactnativemmkv_UltimateNativeModule_getTypeAtIndex(JNIEnv *env, jclass clazz,
-                                                                     jint index, jint id) {
-    std::string value = osdnk::ultimatelist::obtainTypeAtIndexBy(index, id);
+                                                         jint index, jint id) {
+    std::string value = osdnk::ultimatelist::obtainTypeAtIndexByKey(index, id);
     int byteCount = value.length();
     jbyte* pNativeMessage = const_cast<jbyte *>(reinterpret_cast<const jbyte *>(value.c_str()));
     jbyteArray bytes = env->NewByteArray(byteCount);
     env->SetByteArrayRegion(bytes, 0, byteCount, pNativeMessage);
     return  bytes;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_reactnativemmkv_UltimateNativeModule_getIsHeaderAtIndex(JNIEnv *env, jclass clazz,
+                                                           jint index, jint id) {
+    bool isHeader = osdnk::ultimatelist::obtainIsHeaderAtIndex(index, id);
+
+    return  isHeader;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_reactnativemmkv_UltimateNativeModule_getLength(JNIEnv *env, jclass clazz,
+                                                           jint id) {
+    return osdnk::ultimatelist::obtainCount(id);
 }
 
 bool GetJniEnv(JavaVM *vm, JNIEnv **env) {

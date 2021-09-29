@@ -20,6 +20,10 @@ class RecyclerListView extends LinearLayout {
 
   public void notifyNewData() {
     RecyclerView view = (RecyclerView) adapter.mView;
+    MyRecyclerViewAdapter adapter = (MyRecyclerViewAdapter) view.getAdapter();
+    if (adapter != null) {
+      adapter.notifyDataSetChanged();
+    }
     int childrenCount = view.getChildCount();
     for (int i = 0 ; i < childrenCount; i++) {
       View child = view.getChildAt(i);

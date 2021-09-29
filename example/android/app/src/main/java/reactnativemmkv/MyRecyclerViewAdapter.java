@@ -303,17 +303,17 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     // total number of rows
     @Override
     public int getItemCount() {
-        return mRecyclerViewList.mCount;
+        return mModule.length(mRecyclerViewList.mId);
     }
 
     @Override
     public boolean isStickyHeader(int position) {
-        return position % 10 == 0;
+        return mModule.isHeaderAtIndex(position, mRecyclerViewList.mId);
     }
 
 
     // stores and recycles views as they are scrolled off screen
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener, StickyHeaders {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
         TextView myTextView;
         ReactViewGroup mRVG;
         public boolean mRegisteredForInflating = false;
@@ -329,37 +329,10 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         ViewHolder(FrameLayout itemView) {
             super(itemView);
             mLayout = itemView;
-
-           // myTextView = itemView.findViewById(R.id.tvAnimalName);
             itemView.setOnLongClickListener(this);
-//            mRVG = itemView.findViewById(R.id.tvAnimalName2);
-
-         //   mLayout.getLayoutParams().height = 300;
-//            new Thread(() -> {
-//                try {
-//                    Thread.sleep(5000);
-//                    mLayout.getLayoutParams().height = 600;
-//                    mLayout.getLayoutParams().width = 500;
-//                    mLayout.requestLayout();
-//                    mLayout.post(measureAndLayout);
-//                }
-//                catch (Exception e){
-//                    System.err.println(e);
-//                }
-//            }).start();
         }
 
 
-        @Override
-        public boolean isStickyHeader(int position) {
-            return position % 10 == 0;
-        }
-
-//        @Override
-//        public boolean onTouch(View v, MotionEvent event) {
-//            mRecyclerViewList.adapter.dragDropHelper.start(getBindingAdapterPosition());
-//            return false;
-//        }
 
         @Override
         public boolean onLongClick(View v) {
@@ -368,11 +341,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             return false;
         }
     }
-
-    // convenience method for getting data at click position
-//    String getItem(int id) {
-//        return mData.get(id);
-//    }
 
     // allows clicks events to be caught
     void setClickListener(ItemClickListener itemClickListener) {

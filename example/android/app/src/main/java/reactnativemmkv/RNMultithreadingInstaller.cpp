@@ -51,7 +51,7 @@ namespace ultimatelist {
 
     }
 
-    std::string obtainTypeAtIndexBy(int index, int id) {
+    std::string obtainTypeAtIndexByKey(int index, int id) {
         mtx.lock();
         auto dataValue3 = valueMap[id];
         if (dataValue3 == nullptr) {
@@ -72,6 +72,48 @@ namespace ultimatelist {
         }
         mtx.unlock();
         return "VVV";
+
+    }
+
+    int obtainCount(int id) {
+        mtx.lock();
+        auto dataValue3 = valueMap[id];
+        if (dataValue3 == nullptr) {
+            mtx.unlock();
+            return 0;
+        }
+
+
+        if (dataValue3->isArray()) {
+            mtx.unlock();
+            return ((ArrayNativeWrapper*) dataValue3->valueContainer.get())->length();
+        }
+        mtx.unlock();
+        return 0;
+
+    }
+
+    bool obtainIsHeaderAtIndex(int index, int id) {
+        mtx.lock();
+        auto dataValue3 = valueMap[id];
+        if (dataValue3 == nullptr) {
+            mtx.unlock();
+            return false;
+        }
+
+
+        if (dataValue3->isArray()) {
+            auto valueAtIndex = ((ArrayNativeWrapper*) dataValue3->valueContainer.get())->getValueAtIndex(index);
+            if (valueAtIndex->isObject()) {
+                auto givenData = ((ObjectNativeWrapper *)(valueAtIndex->valueContainer.get()))->getProperty("sticky");
+                if (givenData->isBool()) {
+                    mtx.unlock();
+                    return ((BooleanNativeWrapper*)(givenData.get()->valueContainer.get()))->getValue();
+                }
+            }
+        }
+        mtx.unlock();
+        return false;
 
     }
 

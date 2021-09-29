@@ -48,6 +48,16 @@ std::shared_ptr <ValueNativeWrapper> StringNativeWrapper::create(jsi::Runtime &r
     return std::shared_ptr<ValueNativeWrapper>((ValueNativeWrapper *)snv);
 }
 
+bool BooleanNativeWrapper::getValue() {
+    return this->value;
+}
+
+std::shared_ptr <ValueNativeWrapper> BooleanNativeWrapper::create(jsi::Runtime &rt, bool value) {
+    auto snv = new BooleanNativeWrapper();
+    snv->value = value;
+    return std::shared_ptr<ValueNativeWrapper>((ValueNativeWrapper *)snv);
+}
+
 std::shared_ptr <ShareableNativeValue>
 ShareableNativeValue::adapt(jsi::Runtime &rt, const jsi::Value &value) {
     auto svn = std::shared_ptr<ShareableNativeValue>(
@@ -55,6 +65,9 @@ ShareableNativeValue::adapt(jsi::Runtime &rt, const jsi::Value &value) {
     if (value.isString()) {
         svn->type = ValueType::StringType;
         svn->valueContainer = std::shared_ptr<ValueNativeWrapper>(StringNativeWrapper::create(rt, value.asString(rt)));
+    } else if (value.isBool()) {
+        svn->type = ValueType::BoolType;
+        svn->valueContainer = std::shared_ptr<ValueNativeWrapper>(BooleanNativeWrapper::create(rt, value.getBool()));
     } else if (value.isObject()) {
         if (value.asObject(rt).isArray(rt)) {
             svn->type = ValueType::ArrayType;
