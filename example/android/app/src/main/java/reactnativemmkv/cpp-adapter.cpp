@@ -9,9 +9,15 @@
 #include "RNMultithreadingInstaller.h"
 
 #include "Scheduler.h"
-#include "../../../../../../../android/src/main/cpp/AndroidErrorHandler.h"
-#include "../../../../../../../android/src/main/cpp/AndroidScheduler.h"
 
+#include <react/jni/CxxModuleWrapper.h>
+#include <react/jni/JMessageQueueThread.h>
+#include "ErrorHandler.h"
+#include "Scheduler.h"
+#include <jni.h>
+#include <memory>
+#include <fbjni/fbjni.h>
+#include "Logger.h"
 
 
 using namespace facebook;
@@ -42,9 +48,7 @@ private:
   }
 
     static void installNative(jni::alias_ref<JClass>,
-                              jlong jsiRuntimePointer,
-                              jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder,
-                              jni::alias_ref<AndroidScheduler::javaobject> androidScheduler) {
+                              jlong jsiRuntimePointer) {
 
 
         auto runtime = reinterpret_cast<jsi::Runtime*>(jsiRuntimePointer);

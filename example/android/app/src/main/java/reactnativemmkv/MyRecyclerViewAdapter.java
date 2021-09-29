@@ -7,6 +7,7 @@ import android.provider.CalendarContract;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -14,11 +15,13 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.views.view.ReactViewGroup;
+import com.swmansion.gesturehandler.react.RNGestureHandlerButtonViewManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +46,22 @@ class CusFrameLayout extends FrameLayout {
                 MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.EXACTLY));
         layout(getLeft(), getTop(), getRight(), getBottom());
     };
+
+    @Override
+    public boolean onInterceptHoverEvent(MotionEvent event) {
+        return super.onInterceptHoverEvent(event);
+    }
+
+//    @Override
+//    public boolean onInterceptTouchEvent(MotionEvent ev) {
+//        return true;
+//    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return super.onTouchEvent(event);
+    }
+
 
     @Override
     public void requestLayout() {
@@ -71,7 +90,35 @@ class JSValueGetter {
   }
 }
 
+class DDCallback implements DragDropHelper.Callback {
+
+    @Override
+    public void onDragStarted(@NonNull RecyclerView.ViewHolder holder, boolean create) {
+        Log.d("XXXX", "onDragStarted");
+
+    }
+
+    @Override
+    public void onDragMoved(@NonNull RecyclerView.ViewHolder holder, int x, int y) {
+
+    }
+
+    @Override
+    public int onDragTo(@NonNull RecyclerView.ViewHolder holder, int to) {
+        return 0;
+    }
+
+    @Override
+    public void onDragStopped(@NonNull RecyclerView.ViewHolder holder, boolean destroy) {
+
+    }
+}
+
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> implements StickyHeaders {
+
+    private DragDropHelper dragDropHelper = new DragDropHelper();
+    private DDCallback dragDropHelperCallback = new DDCallback();
+
 
     private LayoutInflater mInflater;
     int cellWidth = 0;
@@ -119,6 +166,12 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     private Map<String, Integer> typeNamesToInt = new HashMap<>();
     private Map<Integer, String> IntToTypeName = new HashMap<>();
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        dragDropHelper.attach(recyclerView, dragDropHelperCallback);
+    }
+
     @Override
     public int getItemViewType(int position) {
 
@@ -170,6 +223,8 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         int viewType = holder.getItemViewType();
+        holder.mLayout.setBackgroundColor(position  % 2 == 0 ? Color.MAGENTA : Color.RED);
+
         String type = IntToTypeName.get(viewType);
 //      holder.
         //String animal = String.valueOf(mModule.valueAtIndex(position));
@@ -258,7 +313,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
 
     // stores and recycles views as they are scrolled off screen
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, StickyHeaders {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener, StickyHeaders {
         TextView myTextView;
         ReactViewGroup mRVG;
         public boolean mRegisteredForInflating = false;
@@ -274,9 +329,9 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         ViewHolder(FrameLayout itemView) {
             super(itemView);
             mLayout = itemView;
-            mLayout.setBackgroundColor(Color.MAGENTA);
+
            // myTextView = itemView.findViewById(R.id.tvAnimalName);
-            itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
 //            mRVG = itemView.findViewById(R.id.tvAnimalName2);
 
          //   mLayout.getLayoutParams().height = 300;
@@ -294,15 +349,23 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 //            }).start();
         }
 
-        @Override
-        public void onClick(View view) {
-            Log.d("DSD", "ASDAD");
-            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
-        }
 
         @Override
         public boolean isStickyHeader(int position) {
             return position % 10 == 0;
+        }
+
+//        @Override
+//        public boolean onTouch(View v, MotionEvent event) {
+//            mRecyclerViewList.adapter.dragDropHelper.start(getBindingAdapterPosition());
+//            return false;
+//        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            Log.d("DDD", "DDD");
+            mRecyclerViewList.adapter.dragDropHelper.start(getBindingAdapterPosition());
+            return false;
         }
     }
 

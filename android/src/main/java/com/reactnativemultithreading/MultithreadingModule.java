@@ -40,15 +40,13 @@ public class MultithreadingModule extends ReactContextBaseJavaModule {
     return TAG;
   }
 
-  private static native void installNative(long jsiRuntimePointer,
-                                           CallInvokerHolderImpl jsCallInvokerHolder,
-                                           Scheduler scheduler);
+  private static native void installNative(long jsiRuntimePointer);
 
   public static void install(ReactApplicationContext context, JavaScriptContextHolder jsContext) {
     CallInvokerHolderImpl holder = (CallInvokerHolderImpl) context.getCatalystInstance().getJSCallInvokerHolder();
     SoLoader.init(context, false); // <-- required for makeJSExecutorFactory later on
     sScheduler = new Scheduler(context);
-    installNative(jsContext.get(), holder, sScheduler);
+    installNative(jsContext.get());
   }
 
 
