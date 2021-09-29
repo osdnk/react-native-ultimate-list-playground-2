@@ -173,16 +173,21 @@ const AnimatedCellStorage = Animated.createAnimatedComponent(CellStorage)
 
 const PRERENDERED_CELLS = 4;
 
-function RecyclableViews({ viewTypes }: { viewTypes: { [_ :string]: JSX.Element } }) {
+type WrappedView = { view: JSX.Element, maxRendered?: number }
+
+type Descriptor = WrappedView | JSX.Element
+
+
+function RecyclableViews({ viewTypes }: { viewTypes: { [_ :string]: Descriptor } }) {
 
   return Object.entries(viewTypes).map(([type, child]) => (
-    <RecyclableViewsByType key={`rlvv-${type}`} type={type}>
-      {child}
+    <RecyclableViewsByType key={`rlvv-${type}`} type={type} maxRendered={(child as WrappedView).maxRendered}>
+      {child.hasOwnProperty("view") ? (child as WrappedView).view : child as JSX.Element}
     </RecyclableViewsByType>
   ));
 }
 
-function RecyclableViewsByType({ children, type }: { children: React.ReactChild, type: string }) {
+function RecyclableViewsByType({ children, type, maxRendered }: { children: React.ReactChild, type: string, maxRendered: number | undefined }) {
   const [cells, setCells] = useState<number>(1  )
   const onMoreRowsNeededHandler = useAnimatedRecycleHandler({
     onMoreRowsNeeded: e => {
@@ -192,7 +197,7 @@ function RecyclableViewsByType({ children, type }: { children: React.ReactChild,
       //  console.log(e)
     }
   }, [setCells])
-  console.log("rendering " + cells + "cells");
+  console.log(maxRendered);
   // use reanimated event here and animated reaction
   return (
     <AnimatedCellStorage  style={{ opacity: 0.1 }} type={type} onMoreRowsNeeded={onMoreRowsNeededHandler} onMoreRowsNeededBackup={e => {
@@ -202,7 +207,7 @@ function RecyclableViewsByType({ children, type }: { children: React.ReactChild,
       }
     }} >
       {/* TODO make better render counting  */}
-      {[...Array(Math.max(PRERENDERED_CELLS, cells + 2))].map((_, index) => (
+      {[...Array(maxRendered || Math.max(PRERENDERED_CELLS, cells + 2))].map((_, index) => (
         <RecyclerRowWrapper
           initialPosition={index}
           key={`rl-${index}`}
@@ -219,23 +224,25 @@ function RecyclableViewsByType({ children, type }: { children: React.ReactChild,
 
 let id = 0;
 
+
 function RecyclerView<TData>({
                                style,
                                children,
                                data,
-                               viewTypes
-
+                               layoutProvider,
+                               getViewType
                              }: {
   style: ViewStyle;
   children: any;
   data: TData[];
-  viewTypes: { [_ :string]: JSX.Element }
+  layoutProvider: { [_ :string]: Descriptor },
+  getViewType: (i : number) => string
 }) {
   // @ts-ignore
   //global.setData(data)
 
   const [currId] = useState<number>(() => id++)
-  const newData = data.map((d, i) => ({ type: i %2 === 0 ? "type1" : "type2", data: d }))
+  const newData = data.map((d, i) => ({ type: getViewType(i),  data: d }))
 
   useImmediateEffect(() => {
     global.setDataS(newData, currId)
@@ -247,7 +254,7 @@ function RecyclerView<TData>({
     <RawDataContext.Provider value={data}>
     <DataContext.Provider value={datas}>
       <View style={style} removeClippedSubviews={false}>
-        <RecyclableViews viewTypes={viewTypes}>{}</RecyclableViews>
+        <RecyclableViews viewTypes={layoutProvider}>{}</RecyclableViews>
         <RecyclerListView
           id={currId}
           count={data.length}
@@ -363,12 +370,32 @@ function ContactCell2() {
     <RecyclerRow
       type="type2"
       style={{
-        height: 200,
+        height: 80,
         //height: reactiveData?.color === "green" ? 200 : 100,
 
       }}
     >
-        <UltraFastText binding={name} />
+      <UltraFastText binding={name} />
+    </RecyclerRow>
+  );
+}
+
+
+function HeaderCell() {
+
+  return (
+    <RecyclerRow
+      type="type2"
+      style={{
+        height: 70,
+        backgroundColor: "blue"
+        //height: reactiveData?.color === "green" ? 200 : 100,
+
+      }}
+    >
+      <Text>
+        Header
+      </Text>
     </RecyclerRow>
   );
 }
@@ -383,7 +410,7 @@ console.log("setting 1")
 
 //global.setDataS(data)
 
-function useRowTypesLayout(descriptors: () =>  ({ [key :string]: JSX.Element }), deps: any[] = []) {
+function useRowTypesLayout(descriptors: () =>  ({ [key :string]: Descriptor }), deps: any[] = []) {
 
   return useMemo(descriptors, [deps])
 }
@@ -397,19 +424,24 @@ export default function Example({ data } : { data: DataCell[] }) {
   // })
   console.log("setting 3")
 
-  const viewTypes = useRowTypesLayout(() => ({
+  const layoutProvider = useRowTypesLayout(() => ({
+    header: {
+      view: <HeaderCell/>,
+      maxRendered: 2
+    },
     type1: <ContactCell/>,
     type2: <ContactCell2/>
   }))
+
+  const getViewType = useCallback((i) => i === 0 ? "header" : i %2 === 0 ? "type1" : "type2", [])
+
   return (
     <>
     <RecyclerView<DataCell>
-      //  layoutProvider={layoutProvider}
-      //layoutTypeExtractor={layoutTypeExtractor} // all called before rendering
+      getViewType={getViewType}
       data={data}
-      viewTypes={viewTypes}
+      layoutProvider={layoutProvider}
       style={{ width: '100%', height: 300 }}
-      //layoutProvider={layoutProvider}
     >
       <ContactCell />
       <ContactCell2 />

@@ -1,27 +1,17 @@
 #include <__bit_reference>
-// C mrousavy
+// C osdnk
 
 #pragma once
 #include <jsi/jsi.h>
 
-#if __has_include(<RNReanimated/Scheduler.h>)
-#include <RNReanimated/Scheduler.h>
-#include <RNReanimated/ShareableValue.h>
-#include <RNReanimated/ErrorHandler.h>
-#else
 #include "Scheduler.h"
-#include "ErrorHandler.h"
 #include "ShareableValue.h"
 
-#endif
 
 using namespace facebook;
 
-namespace mrousavy {
-namespace multithreading {
-
-    static auto constexpr kJavaDescriptor =
-            "Lcom/swmansion/reanimated/NativeProxy$AnimationFrameCallback;";
+namespace osdnk {
+namespace ultimatelist {
 
     std::string obtainStringValueAtIndexByKey(int index, std::string label, int id);
 

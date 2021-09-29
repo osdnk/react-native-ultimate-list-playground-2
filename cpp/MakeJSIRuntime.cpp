@@ -24,8 +24,8 @@
 
 using namespace facebook;
 
-namespace mrousavy {
-namespace multithreading {
+namespace osdnk {
+namespace ultimatelist {
 
 std::unique_ptr<jsi::Runtime> makeJSIRuntime() {
 #if __has_include(<hermes/hermes.h>)

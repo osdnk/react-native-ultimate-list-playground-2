@@ -12,9 +12,9 @@ set (BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 add_library(
         ${PACKAGE_NAME}
         SHARED
-        src/main/cpp/cpp-adapter.cpp
-        ../cpp/RNMultithreadingInstaller.cpp
-        ../cpp/ShareableNativeValue.cpp
+        ../example/android/app/src/main/java/reactnativemmkv/cpp-adapter.cpp
+        ../example/android/app/src/main/java/reactnativemmkv/RNMultithreadingInstaller.cpp
+        ../example/android/app/src/main/java/reactnativemmkv/ShareableNativeValue.cpp
         ../cpp/ThreadPool.cpp
 )
 

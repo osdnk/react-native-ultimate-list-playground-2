@@ -5,8 +5,8 @@
 
 using namespace facebook;
 
-namespace mrousavy {
-namespace multithreading {
+namespace osdnk {
+namespace ultimatelist {
 
 /**
  * Create a new jsi::Runtime with the configured JS engine.

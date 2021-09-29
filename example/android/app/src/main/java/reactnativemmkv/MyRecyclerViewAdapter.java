@@ -71,7 +71,7 @@ class JSValueGetter {
   }
 }
 
-public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
+public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> implements StickyHeaders {
 
     private LayoutInflater mInflater;
     int cellWidth = 0;
@@ -251,9 +251,14 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return mRecyclerViewList.mCount;
     }
 
+    @Override
+    public boolean isStickyHeader(int position) {
+        return position % 10 == 0;
+    }
+
 
     // stores and recycles views as they are scrolled off screen
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, StickyHeaders {
         TextView myTextView;
         ReactViewGroup mRVG;
         public boolean mRegisteredForInflating = false;
@@ -293,6 +298,11 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         public void onClick(View view) {
             Log.d("DSD", "ASDAD");
             if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
+        }
+
+        @Override
+        public boolean isStickyHeader(int position) {
+            return position % 10 == 0;
         }
     }
 

@@ -38,7 +38,7 @@ class RecyclerListView extends LinearLayout {
     this.context = context;
     inflate(context, R.layout.activity_main, this);
     RecyclerView recyclerView = findViewById(R.id.rvAnimals);
-    recyclerView.setLayoutManager(new LinearLayoutManager(context));
+    recyclerView.setLayoutManager(new StickyHeadersLinearLayoutManager(context));
     adapter = new MyRecyclerViewAdapter(context, recyclerView, this);
     recyclerView.setAdapter(adapter);
   }

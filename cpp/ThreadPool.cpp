@@ -19,8 +19,8 @@
 #include <stdexcept>
 #include <unordered_map>
 
-namespace mrousavy {
-namespace multithreading {
+namespace osdnk {
+namespace ultimatelist {
 
 // the constructor just launches some amount of workers
 ThreadPool::ThreadPool(size_t threads): stop(false) {

@@ -7,8 +7,8 @@
 #include <queue>
 #include <future>
 
-namespace mrousavy {
-namespace multithreading {
+namespace osdnk {
+namespace ultimatelist {
 
 class ThreadPool {
 public:

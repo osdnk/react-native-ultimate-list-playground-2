@@ -4,7 +4,6 @@
 
 #include "ShareableNativeValue.h"
 #include <memory>
-#include "ThreadPool.h"
 #include <exception>
 
 std::shared_ptr <ShareableNativeValue> ObjectNativeWrapper::getProperty(std::string name) {

@@ -9,8 +9,8 @@
 #include "RNMultithreadingInstaller.h"
 
 #include "Scheduler.h"
-#include "AndroidErrorHandler.h"
-#include "AndroidScheduler.h"
+#include "../../../../../../../android/src/main/cpp/AndroidErrorHandler.h"
+#include "../../../../../../../android/src/main/cpp/AndroidScheduler.h"
 
 
 
@@ -48,7 +48,7 @@ private:
 
 
         auto runtime = reinterpret_cast<jsi::Runtime*>(jsiRuntimePointer);
-        mrousavy::multithreading::installSimple(*runtime);
+        osdnk::ultimatelist::installSimple(*runtime);
 
     }
 };
@@ -110,7 +110,7 @@ extern "C"
 JNIEXPORT jbyteArray JNICALL
 Java_reactnativemmkv_UltimateNativeModule_getStringValueAtIndexByKey(JNIEnv *env, jclass clazz,
                                                                      jint index, jstring key, jint id) {
-    std::string value = mrousavy::multithreading::obtainStringValueAtIndexByKey(index, jstring2string(env, key), id);
+    std::string value = osdnk::ultimatelist::obtainStringValueAtIndexByKey(index, jstring2string(env, key), id);
     int byteCount = value.length();
     jbyte* pNativeMessage = const_cast<jbyte *>(reinterpret_cast<const jbyte *>(value.c_str()));
     jbyteArray bytes = env->NewByteArray(byteCount);
@@ -122,7 +122,7 @@ extern "C"
 JNIEXPORT jbyteArray JNICALL
 Java_reactnativemmkv_UltimateNativeModule_getTypeAtIndex(JNIEnv *env, jclass clazz,
                                                                      jint index, jint id) {
-    std::string value = mrousavy::multithreading::obtainTypeAtIndexBy(index, id);
+    std::string value = osdnk::ultimatelist::obtainTypeAtIndexBy(index, id);
     int byteCount = value.length();
     jbyte* pNativeMessage = const_cast<jbyte *>(reinterpret_cast<const jbyte *>(value.c_str()));
     jbyteArray bytes = env->NewByteArray(byteCount);
@@ -167,7 +167,7 @@ Java_reactnativemmkv_UltimateNativeModule_setNotifier(JNIEnv *env, jclass clazz)
 
     };
    // notifyNewDataCallback(1);
-    mrousavy::multithreading::setNotifyNewData(notifyNewDataCallback);
+    osdnk::ultimatelist::setNotifyNewData(notifyNewDataCallback);
     //std::function<void (int)> c = notifyNewDataCallback;
 
 }
