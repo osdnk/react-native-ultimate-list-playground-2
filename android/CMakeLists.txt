@@ -13,7 +13,7 @@ add_library(
         ${PACKAGE_NAME}
         SHARED
         ../example/android/app/src/main/java/reactnativemmkv/cpp-adapter.cpp
-        ../example/android/app/src/main/java/reactnativemmkv/RNMultithreadingInstaller.cpp
+        ../example/android/app/src/main/java/reactnativemmkv/UltimateListInstaller.cpp
         ../example/android/app/src/main/java/reactnativemmkv/ShareableNativeValue.cpp
         ../cpp/ThreadPool.cpp
 )
