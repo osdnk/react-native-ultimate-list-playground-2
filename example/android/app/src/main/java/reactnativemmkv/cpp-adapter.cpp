@@ -6,7 +6,7 @@
 #include <react/jni/JavaScriptExecutorHolder.h>
 #include <android/log.h>
 
-#include "RNMultithreadingInstaller.h"
+#include "UltimateListInstaller.h"
 
 #include "Scheduler.h"
 
