@@ -1,4 +1,4 @@
-package reactnativemmkv;
+package ultimatelist;
 
 import static com.reactnativemultithreading.MultithreadingModule.sScheduler;
 
@@ -89,11 +89,13 @@ public class UltimateNativeModule extends ReactContextBaseJavaModule {
   public static native byte[] getStringValueAtIndexByKey(int index, String key, int id);
   public static native boolean getIsHeaderAtIndex(int index, int id);
   public static native int getLength(int id);
+  public static native int[] getAdded(int id);
+  public static native int[] getRemoved(int id);
   public static native void setNotifier();
 
   public String stringValueAtIndexByKey(int index, String key, int id) {
     byte[] bytes = getStringValueAtIndexByKey(index, key, id);
-    return new String(bytes, StandardCharsets.UTF_8);
+    return new String(bytes, StandardCharsets.UTF_8) + "--" + index;
   }
 
   public String typeAtIndex(int index, int id) {

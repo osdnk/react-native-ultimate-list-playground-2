@@ -1,6 +1,6 @@
-package reactnativemmkv;
+package ultimatelist;
 
-import static reactnativemmkv.UltimateNativeModule.sLists;
+import static ultimatelist.UltimateNativeModule.sLists;
 
 import android.util.Log;
 

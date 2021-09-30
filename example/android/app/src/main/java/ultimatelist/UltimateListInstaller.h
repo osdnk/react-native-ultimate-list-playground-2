@@ -16,6 +16,8 @@ namespace ultimatelist {
     std::string obtainStringValueAtIndexByKey(int index, std::string label, int id);
     std::string obtainHashValueAtIndex(int index, int id);
     std::string obtainTypeAtIndexByKey(int index, int id);
+    std::vector<int> obtainNewIndices(int id);
+    std::vector<int> obtainRemovedIndices(int id);
     int obtainCount(int id);
     bool obtainIsHeaderAtIndex(int index, int id);
     void installSimple(jsi::Runtime& cruntime);

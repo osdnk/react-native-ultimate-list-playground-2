@@ -16,7 +16,7 @@ import com.reactnativemultithreading.MultithreadingPackage;
 
 import com.facebook.react.bridge.JSIModulePackage;
 
-import reactnativemmkv.UltimateListPackage;
+import ultimatelist.UltimateListPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 

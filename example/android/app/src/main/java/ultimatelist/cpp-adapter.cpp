@@ -93,7 +93,7 @@ JavaVM* g_jvm = 0;
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_reactnativemmkv_UltimateNativeModule_getValue(JNIEnv *env, jclass clazz, jstring label) {
+Java_ultimatelist_UltimateNativeModule_getValue(JNIEnv *env, jclass clazz, jstring label) {
     std::string slabel = jstring2string(env, label);
     // auto runtime = reinterpret_cast<jsi::Runtime*>(jsiRuntimePointer);
 
@@ -103,14 +103,14 @@ Java_reactnativemmkv_UltimateNativeModule_getValue(JNIEnv *env, jclass clazz, js
 }
 extern "C"
 JNIEXPORT void JNICALL
-Java_reactnativemmkv_UltimateNativeModule_setUIPointerThread(JNIEnv *env, jclass clazz,
+Java_ultimatelist_UltimateNativeModule_setUIPointerThread(JNIEnv *env, jclass clazz,
                                                              jlong jsi_ptr) {
     // TODO: implement setUIPointerThread()
 }
 
 extern "C"
 JNIEXPORT jbyteArray JNICALL
-Java_reactnativemmkv_UltimateNativeModule_getStringValueAtIndexByKey(JNIEnv *env, jclass clazz,
+Java_ultimatelist_UltimateNativeModule_getStringValueAtIndexByKey(JNIEnv *env, jclass clazz,
                                                                      jint index, jstring key, jint id) {
     std::string value = osdnk::ultimatelist::obtainStringValueAtIndexByKey(index, jstring2string(env, key), id);
     int byteCount = value.length();
@@ -122,7 +122,7 @@ Java_reactnativemmkv_UltimateNativeModule_getStringValueAtIndexByKey(JNIEnv *env
 
 extern "C"
 JNIEXPORT jbyteArray JNICALL
-Java_reactnativemmkv_UltimateNativeModule_getHashAtIndex(JNIEnv *env, jclass clazz,
+Java_ultimatelist_UltimateNativeModule_getHashAtIndex(JNIEnv *env, jclass clazz,
                                                                      jint index, jint id) {
     std::string value = osdnk::ultimatelist::obtainHashValueAtIndex(index, id);
     int byteCount = value.length();
@@ -134,7 +134,7 @@ Java_reactnativemmkv_UltimateNativeModule_getHashAtIndex(JNIEnv *env, jclass cla
 
 extern "C"
 JNIEXPORT jbyteArray JNICALL
-Java_reactnativemmkv_UltimateNativeModule_getTypeAtIndex(JNIEnv *env, jclass clazz,
+Java_ultimatelist_UltimateNativeModule_getTypeAtIndex(JNIEnv *env, jclass clazz,
                                                          jint index, jint id) {
     std::string value = osdnk::ultimatelist::obtainTypeAtIndexByKey(index, id);
     int byteCount = value.length();
@@ -146,7 +146,7 @@ Java_reactnativemmkv_UltimateNativeModule_getTypeAtIndex(JNIEnv *env, jclass cla
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_reactnativemmkv_UltimateNativeModule_getIsHeaderAtIndex(JNIEnv *env, jclass clazz,
+Java_ultimatelist_UltimateNativeModule_getIsHeaderAtIndex(JNIEnv *env, jclass clazz,
                                                            jint index, jint id) {
     bool isHeader = osdnk::ultimatelist::obtainIsHeaderAtIndex(index, id);
 
@@ -155,9 +155,32 @@ Java_reactnativemmkv_UltimateNativeModule_getIsHeaderAtIndex(JNIEnv *env, jclass
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_reactnativemmkv_UltimateNativeModule_getLength(JNIEnv *env, jclass clazz,
-                                                           jint id) {
+Java_ultimatelist_UltimateNativeModule_getLength(JNIEnv *env, jclass clazz,
+                                                    jint id) {
     return osdnk::ultimatelist::obtainCount(id);
+}
+
+
+
+extern "C"
+JNIEXPORT jintArray JNICALL
+Java_ultimatelist_UltimateNativeModule_getRemoved(JNIEnv *env, jclass clazz,
+                                                     jint id) {
+    auto removedIndices = osdnk::ultimatelist::obtainRemovedIndices(id);
+    jintArray arr = env->NewIntArray( removedIndices.size() );
+    env->SetIntArrayRegion( arr, 0, removedIndices.size(), ( jint * ) &removedIndices[0] );
+    return arr;
+}
+
+
+extern "C"
+JNIEXPORT jintArray JNICALL
+Java_ultimatelist_UltimateNativeModule_getAdded(JNIEnv *env, jclass clazz,
+                                                     jint id) {
+    auto removedIndices = osdnk::ultimatelist::obtainNewIndices(id);
+    jintArray arr = env->NewIntArray( removedIndices.size() );
+    env->SetIntArrayRegion( arr, 0, removedIndices.size(), ( jint * ) &removedIndices[0] );
+    return arr;
 }
 
 bool GetJniEnv(JavaVM *vm, JNIEnv **env) {
@@ -182,7 +205,7 @@ bool GetJniEnv(JavaVM *vm, JNIEnv **env) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_reactnativemmkv_UltimateNativeModule_setNotifier(JNIEnv *env, jclass clazz) {
+Java_ultimatelist_UltimateNativeModule_setNotifier(JNIEnv *env, jclass clazz) {
     //jclass thisClass = env->GetObjectClass(clazz);
 
 
@@ -191,7 +214,7 @@ Java_reactnativemmkv_UltimateNativeModule_setNotifier(JNIEnv *env, jclass clazz)
     auto notifyNewDataCallback = [](int id) {
         JNIEnv* env2;
         g_jvm->AttachCurrentThread(&env2, NULL);
-        jclass cls2 = env2->FindClass("reactnativemmkv/UltimateNativeModule");
+        jclass cls2 = env2->FindClass("ultimatelist/UltimateNativeModule");
         jmethodID notifyNewData = env2->GetStaticMethodID(cls2, "notifyNewData", "(I)V");
         env2->CallStaticVoidMethod(cls2, notifyNewData, id);
 

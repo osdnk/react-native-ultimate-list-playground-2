@@ -1,4 +1,4 @@
-package reactnativemmkv;
+package ultimatelist;
 
 
 import android.content.Context;
@@ -72,8 +72,8 @@ class CusFrameLayout extends FrameLayout {
 }
 
 class JSValueGetter {
-  private int mPosition;
-  private int mId;
+  public int mPosition;
+  public int mId;
   private UltimateNativeModule mModule;
   public String getJSValue(String name) {
     String v = mModule.stringValueAtIndexByKey(mPosition, name, mId);
@@ -238,14 +238,14 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         //holder.mLayout.setLayoutParams(new LinearLayout.LayoutParams(holder.mLayout.getWidth(), holder.mLayout.getHeight()));
 
         if (recyclerRow instanceof RecyclerRow) {
-          ((RecyclerRow)recyclerRow).recycle(position, valueGetter);
+            Log.d("XXX", "Recycling from " + ((RecyclerRow) recyclerRow).mCachedValueGetter.mPosition + " to " + position);
+            ((RecyclerRow)recyclerRow).recycle(position, valueGetter);
          // ((RecyclerRow) recyclerRow).tryResizing();
          // ((RecyclerRow) recyclerRow).post(((RecyclerRow) recyclerRow)::tryResizing);
 
          // holder.mLayout.setLayoutParams(new LinearLayout.LayoutParams(recyclerRow.getWidth(), recyclerRow.getHeight()));
 
          // recyclerRow.setLayoutParams(new LinearLayout.LayoutParams(position%2 == 1 ? 200 : 100, recyclerRow.getHeight()));
-          Log.d("XXX", "having a child, recycling " + recyclerRow.getHeight());
       } else {
           ViewGroup vg = ((ViewGroup) mView.getParent().getParent().getParent().getParent());
           CellStorage vgv = findStorageByType(vg, type);

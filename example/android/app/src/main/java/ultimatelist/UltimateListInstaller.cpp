@@ -17,8 +17,8 @@ namespace ultimatelist {
 
     std::mutex mtx;
     std::unordered_map<int, std::shared_ptr<ShareableNativeValue>> valueMap;
+    std::unordered_map<int, std::shared_ptr<ShareableNativeValue>> recentChanges;
     std::shared_ptr<std::function<void (int)>> notifyNewData;
-    std::shared_ptr<ShareableNativeValue> dataValue2 = nullptr;
     std::string obtainStringValueAtIndexByKey(int index, std::string label, int id) {
         mtx.lock();
         auto dataValue3 = valueMap[id];
@@ -73,6 +73,60 @@ namespace ultimatelist {
         mtx.unlock();
         return "VVV";
 
+    }
+
+    std::vector<int> obtainNewIndices(int id) {
+        mtx.lock();
+        std::vector<int> res;
+        auto dataValue3 = recentChanges[id];
+
+
+        if (dataValue3->isObject()) {
+            auto valueAtIndex = ((ObjectNativeWrapper*) dataValue3->valueContainer.get())->getProperty("newIndices");
+            if (valueAtIndex->isArray()) {
+                auto givenData = ((ArrayNativeWrapper *)(valueAtIndex->valueContainer.get()))->value;
+                //res.push_back(1);
+                for (auto & i : givenData) {
+                    auto value = ((NumberNativeWrapper *)(i->valueContainer.get()))->getValue();
+                    res.push_back((int) value);
+                }
+//                std::transform(givenData.begin(), givenData.end(), res.begin(), [](ShareableNativeValue d) -> int {
+//                    return 1;
+//
+////                    return ((NumberNativeWrapper *)(d->valueContainer.get()))->getValue();
+//                });
+            }
+        }
+        mtx.unlock();
+        return res;
+    }
+
+    std::vector<int> obtainRemovedIndices(int id) {
+        mtx.lock();
+        std::vector<int> res;
+        auto dataValue3 = recentChanges[id];
+
+
+        if (dataValue3->isObject()) {
+            auto valueAtIndex = ((ObjectNativeWrapper*) dataValue3->valueContainer.get())->getProperty("removedIndices");
+            if (valueAtIndex->isArray()) {
+                auto givenData = ((ArrayNativeWrapper *)(valueAtIndex->valueContainer.get()))->value;
+                for (auto & i : givenData) {
+                    auto value = ((NumberNativeWrapper *)(i->valueContainer.get()))->getValue();
+                    res.push_back((int) value);
+                }
+               // res.push_back(1);
+//                std::transform(givenData.begin(), givenData.end(), res.begin(), [](std::shared_ptr<ShareableNativeValue> d) -> double {
+//                    return 1;
+//                });
+//                std::transform(givenData.begin(), givenData.end(), res.begin(), [](ShareableNativeValue d) -> int {
+//                    //return ((NumberNativeWrapper *)(d->valueContainer.get()))->getValue();
+//                    return 1;
+//                });
+            }
+        }
+        mtx.unlock();
+        return res;
     }
 
     std::string obtainHashValueAtIndex(int index, int id) {
@@ -153,17 +207,23 @@ namespace ultimatelist {
 
         auto setDataS = jsi::Function::createFromHostFunction(runtime,
                                                               jsi::PropNameID::forAscii(runtime, "setDataS"),
-                                                              2,  // run
+                                                              3,  // run
                                                               [](jsi::Runtime& cruntime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
                                                                   mtx.lock();
-                                                                  dataValue2 = ShareableNativeValue::adapt(cruntime, arguments[0]);
+                                                                  auto dataValue2 = ShareableNativeValue::adapt(cruntime, arguments[0]);
                                                                   int id = arguments[1].asNumber();
                                                                   valueMap[id] = dataValue2;
                                                                   mtx.unlock();
+                                                                  if (arguments[2].isObject()) {
+                                                                      recentChanges[id] = ShareableNativeValue::adapt(cruntime, arguments[2]);
+                                                                  }
                                                                   auto notify = notifyNewData.get();
                                                                   if (notify != nullptr) {
                                                                       notify->operator()(id);
                                                                   }
+
+
+
                                                                   return jsi::Value();
                                                               });
         runtime.global().setProperty(runtime, "setDataS", std::move(setDataS));
@@ -175,6 +235,7 @@ namespace ultimatelist {
                                                                   mtx.lock();
                                                                   int id = arguments[0].asNumber();
                                                                   valueMap.erase(id);
+                                                                  recentChanges.erase(id);
                                                                   mtx.unlock();
                                                                   return jsi::Value();
                                                               });

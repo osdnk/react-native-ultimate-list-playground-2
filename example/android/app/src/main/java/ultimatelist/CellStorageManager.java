@@ -1,7 +1,7 @@
-package reactnativemmkv;
+package ultimatelist;
 
-import android.view.View;
-import android.view.ViewParent;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 
@@ -11,14 +11,18 @@ import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
 
-import java.security.cert.CertStoreSpi;
+import java.util.ArrayDeque;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
 
-class RecyclerRowManager extends ViewGroupManager<RecyclerRow> {
-  public static final String REACT_CLASS = "RecyclerRow";
-  ReactApplicationContext mCallerContext;
+class CellStorageManager extends ViewGroupManager<CellStorage> {
+  public static final String REACT_CLASS = "CellStorage";
+  private ReactApplicationContext mCallerContext;
 
-  public RecyclerRowManager(ReactApplicationContext reactContext) {
+  public CellStorageManager(ReactApplicationContext reactContext) {
     mCallerContext = reactContext;
   }
 
@@ -28,17 +32,12 @@ class RecyclerRowManager extends ViewGroupManager<RecyclerRow> {
   }
 
   @Override
-  public RecyclerRow createViewInstance(ThemedReactContext context) {
-    return new RecyclerRow(context);
-  }
-
-  @ReactProp(name = "initialPosition")
-  public void setInitialPosition(RecyclerRow view, int initialPosition) {
-    view.setInitialPosition(initialPosition);
+  public CellStorage createViewInstance(ThemedReactContext context) {
+    return new CellStorage(context);
   }
 
   @ReactProp(name = "type")
-  public void setType(RecyclerRow view, String type) {
+  public void setType(CellStorage view, String type) {
     view.mType = type;
   }
 
@@ -51,8 +50,11 @@ class RecyclerRowManager extends ViewGroupManager<RecyclerRow> {
   public static Map<String, Object> createExportedCustomDirectEventTypeConstants() {
     return MapBuilder.<String, Object>builder()
       .put(
-        "onRecycle",
-        MapBuilder.of("registrationName", "onRecycle"))
+        "onMoreRowsNeeded",
+        MapBuilder.of("registrationName", "onMoreRowsNeeded"))
+      .put(
+        "onMoreRowsNeededBackup",
+        MapBuilder.of("registrationName", "onMoreRowsNeededBackup"))
       .build();
   }
 }

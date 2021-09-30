@@ -11,6 +11,7 @@
 
 enum class ValueType {
     BoolType,
+    NumberType,
     StringType,
     ArrayType,
     ObjectType,
@@ -31,6 +32,10 @@ public:
     }
     inline bool isArray() {
         return type == ValueType::ArrayType;
+    }
+
+    inline bool isNumber() {
+        return type == ValueType::NumberType;
     }
 
     inline bool isObject() {
@@ -60,7 +65,6 @@ public:
         return this->value.size();
     };
     static std::shared_ptr<ValueNativeWrapper> create(jsi::Runtime &rt, jsi::Array value);
-private:
     std::vector<std::shared_ptr<ShareableNativeValue>> value;
 };
 
@@ -80,6 +84,15 @@ public:
     static std::shared_ptr<ValueNativeWrapper> create(jsi::Runtime &rt, bool value);
 private:
     bool value;
+
+};
+
+class NumberNativeWrapper : ValueNativeWrapper {
+public:
+    double getValue();
+    static std::shared_ptr<ValueNativeWrapper> create(jsi::Runtime &rt, double value);
+private:
+    double value;
 
 };
 

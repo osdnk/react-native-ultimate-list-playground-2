@@ -12,9 +12,9 @@ set (BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 add_library(
         ${PACKAGE_NAME}
         SHARED
-        ../example/android/app/src/main/java/reactnativemmkv/cpp-adapter.cpp
-        ../example/android/app/src/main/java/reactnativemmkv/UltimateListInstaller.cpp
-        ../example/android/app/src/main/java/reactnativemmkv/ShareableNativeValue.cpp
+        ../example/android/app/src/main/java/ultimatelist/cpp-adapter.cpp
+        ../example/android/app/src/main/java/ultimatelist/UltimateListInstaller.cpp
+        ../example/android/app/src/main/java/ultimatelist/ShareableNativeValue.cpp
         ../cpp/ThreadPool.cpp
 )
 

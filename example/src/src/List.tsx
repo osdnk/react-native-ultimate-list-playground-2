@@ -225,6 +225,16 @@ function RecyclableViewsByType({ children, type, maxRendered }: { children: Reac
 
 let id = 0;
 
+type HashedData = { hash: string }
+
+
+type TraversedData<T> = {
+  data: T;
+  type: string;
+  sticky: boolean,
+  hash: string;
+}
+
 
 function RecyclerView<TData>({
                                style,
@@ -245,7 +255,7 @@ function RecyclerView<TData>({
   //global.setData(data)
 
   const [currId] = useState<number>(() => id++)
-  const traversedData = useMemo(() => data.map(((row, index) => {
+  const traversedData: TraversedData<TData>[] = useMemo(() => data.map(((row, index) => {
     const type = getViewType(row, index);
     const sticky = getIsSticky(row, type, index)
     const hash = getHash(row, index)
@@ -253,11 +263,15 @@ function RecyclerView<TData>({
       data: row, type, sticky, hash
     })
   })), [data, getIsSticky, getIsSticky, getHash])
+  const prevData = useRef<TraversedData<TData>[]>()
 
   useImmediateEffect(() => {
-    global.setDataS(traversedData, currId)
+    prevData.current && console.log(getDiffArray(prevData.current, traversedData))
+    global.setDataS(traversedData, currId, prevData.current ? getDiffArray(prevData.current, traversedData) : undefined)
     return () => global.removeDataS(currId)
   }, [traversedData])
+
+  prevData.current = traversedData;
 
   const datas = useDerivedValue(() => data, []);
   return (
@@ -429,6 +443,48 @@ console.log("setting 1")
 function useRowTypesLayout(descriptors: () =>  ({ [key :string]: Descriptor }), deps: any[] = []) {
 
   return useMemo(descriptors, [deps])
+}
+
+type HashToIndex = { [hash: string]: number }
+
+function getDiffArray(prev: HashedData[], curr: HashedData[]) {
+  const newIndices: number[] = [];
+  const moves: {from: number, to: number}[] = [];
+  const prevHashesToIndices: HashToIndex = prev.reduce((acc, val, i) => {
+    acc[val.hash] = i;
+    return acc;
+  }, {} as HashToIndex)
+
+  for (let i = 0; i < curr.length; i++) {
+    const currData = curr[i];
+    if (prevHashesToIndices[currData.hash] === undefined) {
+      newIndices.push(i)
+    } else if (prevHashesToIndices[currData.hash] !== i) {
+      moves.push({ from: prevHashesToIndices[currData.hash], to: i })
+    }
+  }
+
+  const removedIndices: number[] = [];
+  const newHashesToIndices: HashToIndex = curr.reduce((acc, val, i) => {
+    acc[val.hash] = i;
+    return acc;
+  }, {} as HashToIndex)
+
+  for (let i = 0; i < prev.length; i++) {
+    const prevData = prev[i];
+    if (newHashesToIndices[prevData.hash] === undefined) {
+      removedIndices.push(i)
+    }
+  }
+
+  return ({
+    newIndices, removedIndices
+  })
+  console.log(newIndices, removedIndices, moves)
+
+
+
+
 }
 
 export default function Example({ data } : { data: DataCell[] }) {
