@@ -1,4 +1,4 @@
-package ultimatelist;
+package com.ultimatelist;
 
 import android.content.Context;
 import android.graphics.PointF;

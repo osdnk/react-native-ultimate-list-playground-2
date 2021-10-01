@@ -247,5 +247,5 @@ namespace ultimatelist {
 
 
 
-} // namespace ultimatelist
+} // namespace com.ultimatelist
 } // namespace osdnk

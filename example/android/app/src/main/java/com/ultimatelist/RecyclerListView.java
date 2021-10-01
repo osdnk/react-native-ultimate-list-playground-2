@@ -1,13 +1,8 @@
-package ultimatelist;
+package com.ultimatelist;
 
-import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.ScrollKiller;
-
 import com.example.reactnativemultithreading.R;
 import com.facebook.react.uimanager.ThemedReactContext;
 
@@ -56,34 +51,9 @@ class RecyclerListView extends LinearLayout {
         }
       }
 
-   //   adapter.notifyDataSetChanged();
-
-
-
       // TODO osdnk
-//      view.requestLayout();
       ScrollKiller.dontDoThisConsumePendingUpdateOperations(view);
-      //adapter.notifyDataSetChanged();
-      //view.post(() -> ScrollKiller.dontDoThisConsumePendingUpdateOperations(view));
-
-      //view.scrollTo(view.getScrollX(), view.getScrollY() + 30);
-      //ScrollResetter.setScrollState(0, view);
-//      view.getLayoutManager().requestLayout();
-//      view.forceLayout();
-      //view.requestLayout();
-    //  view.scrollToPosition(view.getScrollState());
     }
-//    int childrenCount = view.getChildCount();
-//    for (int i = 0 ; i < childrenCount; i++) {
-//      View child = view.getChildAt(i);
-//      if (child instanceof FrameLayout) {
-//        View row = ((FrameLayout) child).getChildAt(0);
-//        if (row instanceof RecyclerRow) {
-//          ((RecyclerRow) row).renotifyUltraFastEvents();
-//        }
-//
-//      }
-//    }
   }
 
   public RecyclerListView(ThemedReactContext context) {
@@ -92,9 +62,8 @@ class RecyclerListView extends LinearLayout {
     inflate(context, R.layout.activity_main, this);
     RecyclerView recyclerView = findViewById(R.id.rvAnimals);
     adapter = new MyRecyclerViewAdapter(context, recyclerView, this);
+    adapter.setHasStableIds(true);
     recyclerView.setAdapter(adapter);
     recyclerView.setLayoutManager(new StickyHeadersLinearLayoutManager(context));
-    //recyclerView.setLayoutManager(new LinearLayoutManager(context));
-    //adapter.setHasStableIds(true);
   }
 }

@@ -1,4 +1,4 @@
-package com.reactnativemultithreading;
+package com.ultimatelist;
 
 import android.util.Log;
 
@@ -11,28 +11,79 @@ import com.facebook.react.bridge.JavaScriptContextHolder;
 import com.facebook.react.bridge.JavaScriptExecutor;
 import com.facebook.react.bridge.JavaScriptExecutorFactory;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.jscexecutor.JSCExecutorFactory;
+import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.turbomodule.core.CallInvokerHolderImpl;
-import com.facebook.react.turbomodule.core.interfaces.CallInvokerHolder;
 import com.facebook.soloader.SoLoader;
 import com.swmansion.reanimated.Scheduler;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.WeakHashMap;
+
+@ReactModule(name = "rnultimatelist")
 @Keep
-@DoNotStrip
-public class MultithreadingModule extends ReactContextBaseJavaModule {
+public class UltimateNativeModule extends ReactContextBaseJavaModule {
   static {
-    System.loadLibrary("reanimated");
     System.loadLibrary("rnultimatelist");
   }
 
-  static public Scheduler sScheduler;
-  static String TAG = "rnultimatelist";
+  static public Map<Integer, RecyclerListView> sLists = new WeakHashMap<>();
 
-  // Dummy so react native adds it to the Gradle Module System
-  public MultithreadingModule(ReactApplicationContext context) {
-    super(context);
+  private static native byte[] getTypeAtIndex(int index, int id);
+  private static native byte[] getHashAtIndex(int index, int id);
+  private static native void installNative(long jsiRuntimePointer);
+  public static native byte[] getStringValueAtIndexByKey(int index, String key, int id);
+  public static native boolean getIsHeaderAtIndex(int index, int id);
+  public static native int getLength(int id);
+  public static native int[] getAdded(int id);
+  public static native int[] getRemoved(int id);
+  public static native void setNotifier();
+
+
+  public UltimateNativeModule(ReactContext reactContext) {
+    super();
+    notifyNewData(1);
+    setNotifier();
   }
+
+  @Keep
+  @DoNotStrip
+  public static void notifyNewData(int id) {
+    RecyclerListView list = sLists.get(id);
+    if (list != null) {
+      list.notifyNewData();
+    }
+  }
+
+
+
+  public String stringValueAtIndexByKey(int index, String key, int id) {
+    byte[] bytes = getStringValueAtIndexByKey(index, key, id);
+    return new String(bytes, StandardCharsets.UTF_8) + "--" + index;
+  }
+
+  public String typeAtIndex(int index, int id) {
+    byte[] bytes = getTypeAtIndex(index, id);
+    return new String(bytes, StandardCharsets.UTF_8);
+  }
+
+  public String hashAtIndex(int index, int id) {
+    byte[] bytes = getTypeAtIndex(index, id);
+    return new String(bytes, StandardCharsets.UTF_8);
+  }
+
+  public boolean isHeaderAtIndex(int index, int id) {
+    return getIsHeaderAtIndex(index, id);
+  }
+
+  public int length(int id) {
+    return getLength(id);
+  }
+
+  static String TAG = "rnultimatelist";
 
   @NonNull
   @Override
@@ -40,12 +91,11 @@ public class MultithreadingModule extends ReactContextBaseJavaModule {
     return TAG;
   }
 
-  private static native void installNative(long jsiRuntimePointer);
 
+  // copied
   public static void install(ReactApplicationContext context, JavaScriptContextHolder jsContext) {
     CallInvokerHolderImpl holder = (CallInvokerHolderImpl) context.getCatalystInstance().getJSCallInvokerHolder();
     SoLoader.init(context, false); // <-- required for makeJSExecutorFactory later on
-    sScheduler = new Scheduler(context);
     installNative(jsContext.get());
   }
 

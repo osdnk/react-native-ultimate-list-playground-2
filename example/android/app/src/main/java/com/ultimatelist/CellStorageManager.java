@@ -1,7 +1,4 @@
-package ultimatelist;
-
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
+package com.ultimatelist;
 
 import androidx.annotation.Nullable;
 
@@ -11,12 +8,7 @@ import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
 
-import java.util.ArrayDeque;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Set;
 
 class CellStorageManager extends ViewGroupManager<CellStorage> {
   public static final String REACT_CLASS = "CellStorage";

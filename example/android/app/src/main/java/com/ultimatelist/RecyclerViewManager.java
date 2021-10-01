@@ -1,14 +1,11 @@
-package ultimatelist;
+package com.ultimatelist;
 
-import static ultimatelist.UltimateNativeModule.sLists;
-
-import android.util.Log;
+import static com.ultimatelist.UltimateNativeModule.sLists;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
-// import com.reactnativemmkv.MmkvModule;
 
 public class RecyclerViewManager extends ViewGroupManager<RecyclerListView> {
 
@@ -31,12 +28,6 @@ public class RecyclerViewManager extends ViewGroupManager<RecyclerListView> {
     // TODO osdnk also removing
     sLists.put(id, view);
   }
-
-//  @ReactProp(name = "animatedRuntimeAddress")
-//  public void setAnimatedRuntimeAddress(RecyclerListView view, String animatedRuntimeAddress) {
-//    Log.d("XXX", animatedRuntimeAddress);
-//    //MmkvModule.sAnimatedRuntimeAddress = Long.parseLong(animatedRuntimeAddress);;
-//  }
 
   @Override
   public String getName() {

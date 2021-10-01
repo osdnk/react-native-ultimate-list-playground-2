@@ -1,4 +1,4 @@
-package ultimatelist;
+package com.ultimatelist;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;

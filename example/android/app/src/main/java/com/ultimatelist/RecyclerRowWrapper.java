@@ -1,18 +1,9 @@
-package ultimatelist;
+package com.ultimatelist;
 
-import android.util.Log;
-import android.view.View;
 import android.view.ViewParent;
 
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.ThemedReactContext;
-import com.facebook.react.uimanager.UIManagerModule;
-import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.views.view.ReactViewGroup;
-
-import java.util.HashSet;
-import java.util.Set;
 
 class RecyclerRowWrapper extends ReactViewGroup {
 //  @Override
