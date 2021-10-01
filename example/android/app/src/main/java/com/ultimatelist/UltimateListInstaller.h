@@ -19,10 +19,10 @@ namespace ultimatelist {
     std::vector<int> obtainNewIndices(int id);
     std::vector<int> obtainRemovedIndices(int id);
     int obtainCount(int id);
+    void moveFromPreSet(int id);
     bool obtainIsHeaderAtIndex(int index, int id);
     void installSimple(jsi::Runtime& cruntime);
     void setNotifyNewData(std::function<void (int)> notifier);
-
 
 }
 }

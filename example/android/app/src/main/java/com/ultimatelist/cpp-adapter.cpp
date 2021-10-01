@@ -70,6 +70,8 @@ public:
                                                             UltimateListModule::getRemoved),
                                            makeNativeMethod("setNotifier",
                                                             UltimateListModule::setNotifier),
+                                           makeNativeMethod("moveFromPreSet",
+                                                            UltimateListModule::moveFromPreSet),
                                        });
   }
 
@@ -154,6 +156,11 @@ private:
         return arr;
     }
 
+    static void moveFromPreSet(JNIEnv *env, jclass clazz,
+                              jint id) {
+        osdnk::ultimatelist::moveFromPreSet(id);
+    }
+
 
 
 
@@ -176,11 +183,4 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
     UltimateListModule::registerNatives();
   });
 }
-/*
-To create the Scheduler/AndroidErrorHandler:
-1.:     #include <fbjni/fbjni.h>
-2.:     class AndroidScheduler : public jni::HybridClass<AndroidScheduler>;
-3.:     jni::alias_ref<AndroidScheduler::javaobject> androidScheduler
-4.:     api project(":react-native-reanimated")
-*/
 

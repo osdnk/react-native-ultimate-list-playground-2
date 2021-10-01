@@ -17,6 +17,7 @@ namespace ultimatelist {
 
     std::mutex mtx;
     std::unordered_map<int, std::shared_ptr<ShareableNativeValue>> valueMap;
+    std::unordered_map<int, std::shared_ptr<ShareableNativeValue>> preValueMap;
     std::unordered_map<int, std::shared_ptr<ShareableNativeValue>> recentChanges;
     std::shared_ptr<std::function<void (int)>> notifyNewData;
     std::string obtainStringValueAtIndexByKey(int index, std::string label, int id) {
@@ -51,7 +52,13 @@ namespace ultimatelist {
 
     }
 
-    std::string obtainTypeAtIndexByKey(int index, int id) {
+        void moveFromPreSet(int id) {
+            valueMap[id] = preValueMap[id];
+            preValueMap.erase(id);
+        }
+
+
+        std::string obtainTypeAtIndexByKey(int index, int id) {
         mtx.lock();
         auto dataValue3 = valueMap[id];
         if (dataValue3 == nullptr) {
@@ -212,15 +219,19 @@ namespace ultimatelist {
                                                                   mtx.lock();
                                                                   auto dataValue2 = ShareableNativeValue::adapt(cruntime, arguments[0]);
                                                                   int id = arguments[1].asNumber();
-                                                                  valueMap[id] = dataValue2;
-                                                                  mtx.unlock();
                                                                   if (arguments[2].isObject()) {
+                                                                      preValueMap[id] = dataValue2;
                                                                       recentChanges[id] = ShareableNativeValue::adapt(cruntime, arguments[2]);
+                                                                      mtx.unlock();
+                                                                      auto notify = notifyNewData.get();
+                                                                      if (notify != nullptr) {
+                                                                          notify->operator()(id);
+                                                                      }
+                                                                  } else {
+                                                                      valueMap[id] = dataValue2;
+                                                                      mtx.unlock();
                                                                   }
-                                                                  auto notify = notifyNewData.get();
-                                                                  if (notify != nullptr) {
-                                                                      notify->operator()(id);
-                                                                  }
+
 
 
 

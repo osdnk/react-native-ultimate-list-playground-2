@@ -40,12 +40,12 @@ public class UltimateNativeModule extends ReactContextBaseJavaModule {
   public static native int getLength(int id);
   public static native int[] getAdded(int id);
   public static native int[] getRemoved(int id);
+  public static native void moveFromPreSet(int id);
   public static native void setNotifier();
 
 
   public UltimateNativeModule(ReactContext reactContext) {
     super();
-    notifyNewData(1);
     setNotifier();
   }
 
@@ -57,8 +57,6 @@ public class UltimateNativeModule extends ReactContextBaseJavaModule {
       list.notifyNewData();
     }
   }
-
-
 
   public String stringValueAtIndexByKey(int index, String key, int id) {
     byte[] bytes = getStringValueAtIndexByKey(index, key, id);

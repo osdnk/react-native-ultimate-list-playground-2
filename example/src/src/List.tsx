@@ -4,7 +4,7 @@ import React, {
   useState,
   createContext,
   Children,
-  useContext, useMemo,
+  useContext, useMemo, useEffect,
 } from 'react';
 import { View, Text, StyleSheet, ViewStyle, NativeModules } from 'react-native';
 import {
@@ -268,8 +268,9 @@ function RecyclerView<TData>({
   useImmediateEffect(() => {
     prevData.current && console.log(getDiffArray(prevData.current, traversedData))
     global.setDataS(traversedData, currId, prevData.current ? getDiffArray(prevData.current, traversedData) : undefined)
-    return () => global.removeDataS(currId)
   }, [traversedData])
+
+  useEffect(() => () => global.removeDataS(currId), [])
 
   prevData.current = traversedData;
 
