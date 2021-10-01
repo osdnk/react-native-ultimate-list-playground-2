@@ -18,6 +18,7 @@ namespace ultimatelist {
     std::string obtainTypeAtIndexByKey(int index, int id);
     std::vector<int> obtainNewIndices(int id);
     std::vector<int> obtainRemovedIndices(int id);
+    std::vector<int> obtainMovedIndices(int id);
     int obtainCount(int id);
     void moveFromPreSet(int id);
     bool obtainIsHeaderAtIndex(int index, int id);

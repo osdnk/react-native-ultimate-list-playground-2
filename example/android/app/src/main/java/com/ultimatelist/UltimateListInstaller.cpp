@@ -122,14 +122,27 @@ namespace ultimatelist {
                     auto value = ((NumberNativeWrapper *)(i->valueContainer.get()))->getValue();
                     res.push_back((int) value);
                 }
-               // res.push_back(1);
-//                std::transform(givenData.begin(), givenData.end(), res.begin(), [](std::shared_ptr<ShareableNativeValue> d) -> double {
-//                    return 1;
-//                });
-//                std::transform(givenData.begin(), givenData.end(), res.begin(), [](ShareableNativeValue d) -> int {
-//                    //return ((NumberNativeWrapper *)(d->valueContainer.get()))->getValue();
-//                    return 1;
-//                });
+            }
+        }
+        mtx.unlock();
+        return res;
+    }
+
+
+    std::vector<int> obtainMovedIndices(int id) {
+        mtx.lock();
+        std::vector<int> res;
+        auto dataValue3 = recentChanges[id];
+
+
+        if (dataValue3->isObject()) {
+            auto valueAtIndex = ((ObjectNativeWrapper*) dataValue3->valueContainer.get())->getProperty("movesIndices");
+            if (valueAtIndex->isArray()) {
+                auto givenData = ((ArrayNativeWrapper *)(valueAtIndex->valueContainer.get()))->value;
+                for (auto & i : givenData) {
+                    auto value = ((NumberNativeWrapper *)(i->valueContainer.get()))->getValue();
+                    res.push_back((int) value);
+                }
             }
         }
         mtx.unlock();
@@ -212,8 +225,8 @@ namespace ultimatelist {
     void installSimple(jsi::Runtime& runtime) {
 
 
-        auto setDataS = jsi::Function::createFromHostFunction(runtime,
-                                                              jsi::PropNameID::forAscii(runtime, "setDataS"),
+        auto setData = jsi::Function::createFromHostFunction(runtime,
+                                                              jsi::PropNameID::forAscii(runtime, "_list___setData"),
                                                               3,  // run
                                                               [](jsi::Runtime& cruntime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
                                                                   mtx.lock();
@@ -237,10 +250,10 @@ namespace ultimatelist {
 
                                                                   return jsi::Value();
                                                               });
-        runtime.global().setProperty(runtime, "setDataS", std::move(setDataS));
+        runtime.global().setProperty(runtime, "_list___setData", std::move(setData));
 
-        auto removeDataS = jsi::Function::createFromHostFunction(runtime,
-                                                              jsi::PropNameID::forAscii(runtime, "removeDataS"),
+        auto removeData = jsi::Function::createFromHostFunction(runtime,
+                                                              jsi::PropNameID::forAscii(runtime, "_list___removeData"),
                                                               1,   // run
                                                               [](jsi::Runtime& cruntime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
                                                                   mtx.lock();
@@ -250,7 +263,7 @@ namespace ultimatelist {
                                                                   mtx.unlock();
                                                                   return jsi::Value();
                                                               });
-        runtime.global().setProperty(runtime, "removeDataS", std::move(removeDataS));
+        runtime.global().setProperty(runtime, "_list___removeData", std::move(removeData));
 
     }
 

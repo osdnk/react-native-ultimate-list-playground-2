@@ -40,6 +40,7 @@ public class UltimateNativeModule extends ReactContextBaseJavaModule {
   public static native int getLength(int id);
   public static native int[] getAdded(int id);
   public static native int[] getRemoved(int id);
+  public static native int[] getMoved(int id);
   public static native void moveFromPreSet(int id);
   public static native void setNotifier();
 

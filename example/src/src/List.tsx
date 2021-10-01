@@ -1,46 +1,18 @@
-import React, {
-  useCallback,
-  useRef,
-  useState,
-  createContext,
-  Children,
-  useContext, useMemo, useEffect,
-} from 'react';
-import { View, Text, StyleSheet, ViewStyle, NativeModules } from 'react-native';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 import {
   CellStorage,
   RecyclerListView,
-  RecyclerRow as RawRecyclerRow, RecyclerRowWrapper as RawRecyclerRowWrapper,
+  RecyclerRow as RawRecyclerRow,
+  RecyclerRowWrapper as RawRecyclerRowWrapper,
   UltraFastTextWrapper,
 } from './ultimate';
-import { data, DataCell } from './data';
-import Animated, {
-  useSharedValue,
-  useDerivedValue,
-  useAnimatedStyle, runOnJS, useAnimatedReaction,
-} from 'react-native-reanimated';
+import Animated, { runOnJS, useDerivedValue, useSharedValue } from 'react-native-reanimated';
 import { useAnimatedRecycleHandler } from './useAnimatedRecycleEvent';
-import { ReText } from 'react-native-redash';
-import { runOnUI } from 'react-native-reanimated';
 import type { SharedValue } from 'react-native-reanimated/src/reanimated2/commonTypes';
-import { cloneDeep } from "lodash"
 import { useImmediateEffect } from './useImmediateEffect';
-import { GestureHandlerRootView, NativeViewGestureHandler } from 'react-native-gesture-handler';
-
-
-const someWorklet = (greeting) => {
-  console.log(greeting, 'From the UI thread');
-};
-
-// const onPress = () => {
-//   runOnUI(someWorklet)('Howdy');
-// };
-
-
-
-// NativeModules.UltimateNative.setUIThreadPointer(global._WORKLET_RUNTIME.toString());
-
-//import { useDerivedValue } from './useImmediateDerivedValue';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { getDiffArray } from './diffArray';
 
 const DataContext = createContext<SharedValue<any[]> | null>(null);
 const RawDataContext = createContext<any[] | null>(null);
@@ -72,24 +44,13 @@ function useRawData() {
 
 
 
-function useInitialDataAtIndex() {
-  const data = useData();
-  const position = useInitialPosition();
 
-  return data?.[position];
-  //const initialPosition = useContext(PositionContext);
-  // matbo copy the data and not access them on every recycle
-  // @ts-ignore
-
-}
-
-function useSharedDataAtIndex() {
+export function useSharedDataAtIndex() {
   const data = useData();
   const position = usePosition();
   const initialPosition = useInitialPosition();
   const rawData = useRawData()!;
   const rawDataAtIndex = useRawData()![initialPosition];
-  const initialSharedData = useDerivedValue(() => rawDataAtIndex)
 
   //const initialPosition = useContext(PositionContext);
   // matbo copy the data and not access them on every recycle
@@ -103,7 +64,7 @@ function useSharedDataAtIndex() {
 }
 
 
-function useReactiveDataAtIndex() {
+export function useReactiveDataAtIndex() {
   const initialPosition = useInitialPosition()
   const [currentPosition, setPosition] = useState<number>(initialPosition);
   const sharedPosition = usePosition()
@@ -116,7 +77,6 @@ function useReactiveDataAtIndex() {
 }
 
 function RecyclerRowWrapper(props) {
-  const { initialPosition } = props;
   const position = useSharedValue<number>(-1);
   return (
     <PositionContext.Provider value={position}>
@@ -126,7 +86,7 @@ function RecyclerRowWrapper(props) {
     )
 }
 
-function RecyclerRow(props) {
+export function RecyclerRow(props) {
 
 
   const position = useContext(PositionContext);
@@ -157,11 +117,11 @@ const namingHandler = {
   },
 };
 
-function useUltraFastData<TCellData extends object>() {
+export function useUltraFastData<TCellData extends object>() {
   return new Proxy({ binding: '' }, namingHandler) as any as TCellData;
 }
 
-function UltraFastText({ binding }: { binding: string }) {
+export function UltraFastText({ binding }: { binding: string }) {
   return (
     // @ts-ignore
     <UltraFastTextWrapper binding={binding.___binding}>
@@ -225,7 +185,8 @@ function RecyclableViewsByType({ children, type, maxRendered }: { children: Reac
 
 let id = 0;
 
-type HashedData = { hash: string }
+
+
 
 
 type TraversedData<T> = {
@@ -235,8 +196,13 @@ type TraversedData<T> = {
   hash: string;
 }
 
+export function useRowTypesLayout(descriptors: () =>  ({ [key :string]: Descriptor }), deps: any[] = []) {
 
-function RecyclerView<TData>({
+  return useMemo(descriptors, [deps])
+}
+
+
+export function RecyclerView<TData>({
                                style,
                                data,
                                layoutProvider,
@@ -266,11 +232,12 @@ function RecyclerView<TData>({
   const prevData = useRef<TraversedData<TData>[]>()
 
   useImmediateEffect(() => {
-    prevData.current && console.log(getDiffArray(prevData.current, traversedData))
-    global.setDataS(traversedData, currId, prevData.current ? getDiffArray(prevData.current, traversedData) : undefined)
+    // @ts-ignore
+    global._list___setData(traversedData, currId, prevData.current ? getDiffArray(prevData.current, traversedData) : undefined)
   }, [traversedData])
 
-  useEffect(() => () => global.removeDataS(currId), [])
+  // @ts-ignore
+  useEffect(() => () => global._list___removeData(currId), [])
 
   prevData.current = traversedData;
 
@@ -297,230 +264,3 @@ function RecyclerView<TData>({
   );
 }
 
-
-// const List = createList<Data>();
-// const { WrapperList, useUltraFastSomething, useSharedDataAtIndex, useData } = List;
-
-// HERE starts example
-function ContactCell() {
-  const data = useSharedDataAtIndex();
-  //const reactiveData = useReactiveDataAtIndex();
-  //console.log(reactiveData)
-  const text = useDerivedValue(() => data.value?.name ?? data?.name ??'NONE');
-  const color = useDerivedValue(() => {
-    const name = data.value?.name ?? '';
-    const colors = ['red', 'green', 'blue', 'white', 'yellow'];
-    let hash = 0,
-      i,
-      chr;
-    if (name.length === 0) return hash;
-    for (i = 0; i < name.length - 2; i++) {
-      chr = name.charCodeAt(i);
-      hash = (hash << 5) - hash + chr;
-      hash |= 0;
-    }
-    return colors[Math.abs(hash) % 5];
-  });
-  const circleStyle = useAnimatedStyle(() => ({
-    backgroundColor: data.value.color,
-  }));
-
-  const wrapperStyle = useAnimatedStyle(() => ({
-    height: data.value.color === "green" ? 200 : 100,
-  }));
-
-  const {
-    name,
-    nested: { prof },
-  } = useUltraFastData<DataCell>(); // const prof = "nested.prof"
-
-  return (
-    <RecyclerRow
-      type="type1"
-      style={{
-        //height: reactiveData?.color === "green" ? 200 : 100,
-
-      }}
-    >
-      <View
-        style={[{
-          // height: reactiveData?.color === "green" ? 200 : 100,
-          height: 100,
-          borderWidth: 2,
-          backgroundColor: 'grey',
-          justifyContent: 'center',
-          alignItems: 'center',
-          flexDirection: 'row',
-        }]}
-      >
-        {/*<Animated.View*/}
-        {/*  style={[*/}
-        {/*    {*/}
-        {/*      backgroundColor: reactiveData?.color,*/}
-        {/*      width: 60,*/}
-        {/*      height: 60,*/}
-        {/*      borderRadius: 30,*/}
-        {/*      marginRight: 20,*/}
-        {/*    },*/}
-        {/*  ]}*/}
-        {/*/>*/}
-        <Animated.View
-          style={[
-            circleStyle,
-            {
-              width: 60,
-              height: 60,
-              borderRadius: 30,
-              marginRight: 20,
-            },
-          ]}
-        />
-        <UltraFastText binding={prof} />
-        {/*<UltraFastText binding={name} />*/}
-        {/*<UltraFastSwtich binding={"type"} >*/}
-        {/*  <UltraFastCase type="loading"/>*/}
-        {/*</UltraFastSwtich>*/}
-
-        {/*<UltraFastText binding={name} />*/}
-        <ReText text={text} style={{ width: 150 }} />
-
-        {/*<RecyclableText style={{ width: '70%' }}>Beata Kozidrak</RecyclableText>*/}
-      </View>
-    </RecyclerRow>
-  );
-}
-
-
-function ContactCell2() {
-
-  const {
-    name,
-  } = useUltraFastData<DataCell>(); // const prof = "nested.prof"
-
-  return (
-    <RecyclerRow
-      type="type2"
-      style={{
-        height: 80,
-        //height: reactiveData?.color === "green" ? 200 : 100,
-
-      }}
-    >
-      <UltraFastText binding={name} />
-    </RecyclerRow>
-  );
-}
-
-
-function HeaderCell() {
-
-  return (
-    <RecyclerRow
-      type="type2"
-      style={{
-        height: 70,
-        backgroundColor: "blue"
-        //height: reactiveData?.color === "green" ? 200 : 100,
-
-      }}
-    >
-      <Text>
-        Header
-      </Text>
-    </RecyclerRow>
-  );
-}
-
-
-// console.log(global.setData)
-// if (global.setData) {
-//   global.setData(data)
-// }
-// setInterval(() => console.log(global.setData), 100)
-console.log("setting 1")
-
-//global.setDataS(data)
-
-function useRowTypesLayout(descriptors: () =>  ({ [key :string]: Descriptor }), deps: any[] = []) {
-
-  return useMemo(descriptors, [deps])
-}
-
-type HashToIndex = { [hash: string]: number }
-
-function getDiffArray(prev: HashedData[], curr: HashedData[]) {
-  const newIndices: number[] = [];
-  const moves: {from: number, to: number}[] = [];
-  const prevHashesToIndices: HashToIndex = prev.reduce((acc, val, i) => {
-    acc[val.hash] = i;
-    return acc;
-  }, {} as HashToIndex)
-
-  for (let i = 0; i < curr.length; i++) {
-    const currData = curr[i];
-    if (prevHashesToIndices[currData.hash] === undefined) {
-      newIndices.push(i)
-    } else if (prevHashesToIndices[currData.hash] !== i) {
-      moves.push({ from: prevHashesToIndices[currData.hash], to: i })
-    }
-  }
-
-  const removedIndices: number[] = [];
-  const newHashesToIndices: HashToIndex = curr.reduce((acc, val, i) => {
-    acc[val.hash] = i;
-    return acc;
-  }, {} as HashToIndex)
-
-  for (let i = 0; i < prev.length; i++) {
-    const prevData = prev[i];
-    if (newHashesToIndices[prevData.hash] === undefined) {
-      removedIndices.push(i)
-    }
-  }
-
-  return ({
-    newIndices, removedIndices
-  })
-  console.log(newIndices, removedIndices, moves)
-
-
-
-
-}
-
-export default function Example({ data } : { data: DataCell[] }) {
- // global.setDataS([])
-  //global.setData(data)
-  // global.setData(() => {
-  //   "worklet";
-  //   return data
-  // })
-  console.log("setting 3")
-
-  const layoutProvider = useRowTypesLayout(() => ({
-    header: {
-      view: <HeaderCell/>,
-      maxRendered: 2
-    },
-    type1: <ContactCell/>,
-    type2: <ContactCell2/>
-  }))
-
-  const getViewType = useCallback((d) => d.index === 0 ? "header" : d.index %2 === 0 ? "type1" : "type2", [])
-  const isSticky = useCallback((_, __, i) => i === 0, [])
-  const getHash = useCallback((d) => d.name, [])
-
-  return (
-    <>
-    <RecyclerView<DataCell>
-      getViewType={getViewType}
-      data={data}
-      getIsSticky={isSticky}
-      getHash={getHash}
-      layoutProvider={layoutProvider}
-      style={{ width: '100%', height: 600 }}
-    />
-      </>
-
-  );
-}

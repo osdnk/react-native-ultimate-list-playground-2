@@ -68,6 +68,8 @@ public:
                                                             UltimateListModule::getAdded),
                                            makeNativeMethod("getRemoved",
                                                             UltimateListModule::getRemoved),
+                                           makeNativeMethod("getMoved",
+                                                            UltimateListModule::getMoved),
                                            makeNativeMethod("setNotifier",
                                                             UltimateListModule::setNotifier),
                                            makeNativeMethod("moveFromPreSet",
@@ -144,6 +146,14 @@ private:
         auto removedIndices = osdnk::ultimatelist::obtainRemovedIndices(id);
         jintArray arr = env->NewIntArray( removedIndices.size() );
         env->SetIntArrayRegion( arr, 0, removedIndices.size(), ( jint * ) &removedIndices[0] );
+        return arr;
+    }
+
+    static jintArray getMoved(JNIEnv *env, jclass clazz,
+                                jint id) {
+        auto movedIndices = osdnk::ultimatelist::obtainMovedIndices(id);
+        jintArray arr = env->NewIntArray( movedIndices.size() );
+        env->SetIntArrayRegion( arr, 0, movedIndices.size(), ( jint * ) &movedIndices[0] );
         return arr;
     }
 

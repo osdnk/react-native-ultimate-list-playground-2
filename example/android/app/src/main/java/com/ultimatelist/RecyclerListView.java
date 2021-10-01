@@ -27,20 +27,7 @@ class RecyclerListView extends LinearLayout {
 
         int [] removed = UltimateNativeModule.getRemoved(mId);
         int [] added = UltimateNativeModule.getAdded(mId);
-        int rrange = 1;
-        for (int i = 0; i< removed.length; i++) {
-          int r = removed[i];
-          int r2 = i + 1 == removed.length ? 0 : removed[i+1];
-          if (r2 - r == 1) {
-            rrange++;
-          } else {
-            if (rrange == 1) {
-              adapter.notifyItemRemoved(r);
-            } else {
-              adapter.notifyItemRangeRemoved(r - rrange + 1, rrange);
-            }
-          }
-        }
+        int [] moved = UltimateNativeModule.getMoved(mId);
 
         int arange = 1;
         for (int i = 0; i< added.length; i++) {
@@ -56,6 +43,29 @@ class RecyclerListView extends LinearLayout {
             }
           }
         }
+
+        int rrange = 1;
+        for (int i = 0; i< removed.length; i++) {
+          int r = removed[i];
+          int r2 = i + 1 == removed.length ? 0 : removed[i+1];
+          if (r2 - r == 1) {
+            rrange++;
+          } else {
+            if (rrange == 1) {
+              adapter.notifyItemRemoved(r);
+            } else {
+              adapter.notifyItemRangeRemoved(r - rrange + 1, rrange);
+            }
+          }
+        }
+
+        for (int i = 0; i< moved.length; i+=2) {
+          int from = moved[i];
+          int to = moved[i+1];
+          adapter.notifyItemMoved(from, to);
+        }
+
+
         ScrollKiller.dontDoThisConsumePendingUpdateOperations(view);
       }
     });
