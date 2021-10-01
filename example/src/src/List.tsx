@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { StyleSheet, Text, View, ViewProps, ViewStyle } from 'react-native';
 import {
   CellStorage,
   RecyclerListView,
@@ -10,6 +10,7 @@ import {
 import Animated, { runOnJS, useDerivedValue, useSharedValue } from 'react-native-reanimated';
 import { useAnimatedRecycleHandler } from './useAnimatedRecycleEvent';
 import type { SharedValue } from 'react-native-reanimated/src/reanimated2/commonTypes';
+// @ts-ignore TODO osdnk
 import { useImmediateEffect } from './useImmediateEffect';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { getDiffArray } from './diffArray';
@@ -50,13 +51,10 @@ export function useSharedDataAtIndex() {
   const position = usePosition();
   const initialPosition = useInitialPosition();
   const rawData = useRawData()!;
-  const rawDataAtIndex = useRawData()![initialPosition];
-
-  //const initialPosition = useContext(PositionContext);
-  // matbo copy the data and not access them on every recycle
   return useDerivedValue(() => {
-    const v = data?.value?.[position?.value];
+    const v = data?.value?.[position!.value];
     // Some reanimated 2.2 weirdness. fixme while updating to reanimated 2.3.x
+    // @ts-ignore
     const isMainJS = !!global.__reanimatedModuleProxy;
     const initialData = data?.value[initialPosition];
     return v ? v : isMainJS ? { ...initialData } : initialData;
@@ -73,7 +71,7 @@ export function useReactiveDataAtIndex() {
     sharedPosition?.value !== -1 && runOnJS(setPosition)(sharedPosition!.value);
   })
   const rawDara = useRawData();
-  return rawDara[currentPosition];
+  return rawDara![currentPosition];
 }
 
 function RecyclerRowWrapper(props) {
@@ -86,7 +84,7 @@ function RecyclerRowWrapper(props) {
     )
 }
 
-export function RecyclerRow(props) {
+export function RecyclerRow(props: ViewProps) {
 
 
   const position = useContext(PositionContext);
@@ -94,8 +92,11 @@ export function RecyclerRow(props) {
   //useState(() => (position.value = props.initialPosition))
   const onRecycleHandler = useAnimatedRecycleHandler({ onRecycle: (e) => {
     'worklet';
-    position.value = e.position;
+    position!.value = e.position;
   }});
+
+
+  // TODO osdnk sometimes broken
 
   return (
       <AnimatedRecyclableRow {...props} onRecycle={onRecycleHandler} initialPosition={initialPosition}   />
@@ -141,21 +142,18 @@ type Descriptor = WrappedView | JSX.Element
 
 function RecyclableViews({ viewTypes }: { viewTypes: { [_ :string]: Descriptor } }) {
 
-  return Object.entries(viewTypes).map(([type, child]) => (
+  return (<>{Object.entries(viewTypes).map(([type, child]) => (
     <RecyclableViewsByType key={`rlvv-${type}`} type={type} maxRendered={(child as WrappedView).maxRendered}>
       {child.hasOwnProperty("view") ? (child as WrappedView).view : child as JSX.Element}
     </RecyclableViewsByType>
-  ));
+  ))}</>)
 }
 
 function RecyclableViewsByType({ children, type, maxRendered }: { children: React.ReactChild, type: string, maxRendered: number | undefined }) {
   const [cells, setCells] = useState<number>(1  )
   const onMoreRowsNeededHandler = useAnimatedRecycleHandler({
     onMoreRowsNeeded: e => {
-      'worklet';
-      console.log("Ok, now we neeed " + e.cells)
       runOnJS(setCells)(e.cells)
-      //  console.log(e)
     }
   }, [setCells])
   console.log(maxRendered);
@@ -247,15 +245,15 @@ export function RecyclerView<TData>({
       <RawDataContext.Provider value={data}>
       <DataContext.Provider value={datas}>
         <View style={style} removeClippedSubviews={false}>
-          <RecyclableViews viewTypes={layoutProvider}>{}</RecyclableViews>
+          <RecyclableViews viewTypes={layoutProvider}/>
           {/*<NativeViewGestureHandler*/}
           {/*  shouldActivateOnStart*/}
           {/*>*/}
-            <RecyclerListView
-              id={currId}
-              count={data.length}
-              style={StyleSheet.absoluteFillObject}
-            />
+          <RecyclerListView
+            id={currId}
+            count={data.length}
+            style={StyleSheet.absoluteFillObject}
+          />
           {/*</NativeViewGestureHandler>*/}
         </View>
       </DataContext.Provider>

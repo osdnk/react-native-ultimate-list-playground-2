@@ -125,6 +125,7 @@ interface ScrollEvent extends NativeScrollEvent {
   eventName: string;
   position: number;
   previousPosition: number;
+  cells: number;
 }
 
 export function useAnimatedRecycleHandler<TContext extends Context>(

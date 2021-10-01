@@ -1,7 +1,7 @@
 import { requireNativeComponent, ViewProps } from 'react-native';
 import { memo } from 'react'
 export const RecyclerListView = memo(requireNativeComponent<
-  ViewProps & { count: number }
+  ViewProps & { count: number, id: number }
 >('RecyclerListView'));
 export const RecyclerRow = requireNativeComponent('RecyclerRow');
 export const RecyclerRowWrapper = requireNativeComponent('RecyclerRowWrapper');
