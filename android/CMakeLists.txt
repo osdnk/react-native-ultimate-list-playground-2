@@ -15,6 +15,9 @@ add_library(
         ../example/android/app/src/main/java/com/ultimatelist/cpp-adapter.cpp
         ../example/android/app/src/main/java/com/ultimatelist/UltimateListInstaller.cpp
         ../example/android/app/src/main/java/com/ultimatelist/ShareableNativeValue.cpp
+        ../example/android/app/src/main/java/com/example/reactnativemultithreading/tmregistry/RNTesterAppModuleProvider.cpp
+        ../example/android/app/src/main/java/com/example/reactnativemultithreading/tmregistry/RNTester2TurboModuleManagerDelegate.cpp
+        ../example/android/app/src/main/java/com/example/reactnativemultithreading/tmregistry/rncore-generated.cpp
         ../cpp/ThreadPool.cpp
 )
 
@@ -35,7 +38,9 @@ target_include_directories(
         "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni"
         "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni"
         "${NODE_MODULES_DIR}/react-native/ReactCommon"
+        "${NODE_MODULES_DIR}/react-native/ReactCommon/react/nativemodule/core"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
+        "${NODE_MODULES_DIR}/react-native/ReactCommon/react/nativemodule/core/platform/android"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Tools"
@@ -54,6 +59,16 @@ file (GLOB LIBJSC_DIR "${BUILD_DIR}/android-jsc*.aar/jni/${ANDROID_ABI}")
 file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*.aar/jni/${ANDROID_ABI}")
 
 
+# build shared lib
+
+find_library(
+        TM_JSI_JNIXX
+        react_nativemodule_core
+        PATHS ${LIBRN_DIR}
+        NO_CMAKE_FIND_ROOT_PATH
+)
+
+
 find_library(
         LOG_LIB
         log
@@ -64,6 +79,10 @@ find_library(
         PATHS ${LIBRN_DIR}
         NO_CMAKE_FIND_ROOT_PATH
 )
+
+#message(FATAL_ERROR "no file here: ${TM_JSI_JNIXX}")
+
+
 find_library(
         REANIMATED_LIB
         reanimated
@@ -101,6 +120,7 @@ target_link_libraries(
         ${REANIMATED_LIB}
         ${REACT_NATIVE_JNI_LIB}
         ${REACT_NATIVE_UTILS_LIB}
+        ${TM_JSI_JNIXX}
         ${FBJNI_LIB}
         android
 )

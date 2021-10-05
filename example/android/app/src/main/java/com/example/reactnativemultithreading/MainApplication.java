@@ -2,11 +2,17 @@ package com.example.reactnativemultithreading;
 
 import android.app.Application;
 import android.content.Context;
+
+import com.facebook.jni.HybridData;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.ReactInstanceManager;
+import com.facebook.react.ReactPackageTurboModuleManagerDelegate;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.common.build.ReactBuildConfig;
+import com.facebook.react.config.ReactFeatureFlags;
 import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -14,6 +20,27 @@ import com.facebook.react.bridge.JSIModulePackage;
 
 import com.ultimatelist.UltimateListJSIModulePackage;
 import com.ultimatelist.UltimateListPackage;
+
+class RNTesterTurboModuleManagerDelegate extends ReactPackageTurboModuleManagerDelegate {
+    @Override
+    protected native HybridData initHybrid();
+
+    private static volatile boolean sIsSoLibraryLoaded;
+
+
+    private RNTesterTurboModuleManagerDelegate(
+            ReactApplicationContext context, List<ReactPackage> packages) {
+        super(context, packages);
+    }
+
+    public static class Builder extends ReactPackageTurboModuleManagerDelegate.Builder {
+        protected RNTesterTurboModuleManagerDelegate build(
+                ReactApplicationContext context, List<ReactPackage> packages) {
+            return new RNTesterTurboModuleManagerDelegate(context, packages);
+        }
+    }
+}
+
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -35,6 +62,12 @@ public class MainApplication extends Application implements ReactApplication {
           return packages;
         }
 
+          @Override
+          protected ReactPackageTurboModuleManagerDelegate.Builder
+          getReactPackageTurboModuleManagerDelegateBuilder() {
+              return new RNTesterTurboModuleManagerDelegate.Builder();
+          }
+
         @Override
         protected String getJSMainModuleName() {
           return "index";
@@ -42,7 +75,7 @@ public class MainApplication extends Application implements ReactApplication {
 
         @Override
         protected JSIModulePackage getJSIModulePackage() {
-          return new UltimateListJSIModulePackage();
+          return new UltimateListJSIModulePackage(this);
         }
       };
 
@@ -53,6 +86,9 @@ public class MainApplication extends Application implements ReactApplication {
 
   @Override
   public void onCreate() {
+//    ReactFeatureFlags.useTurboModules = true;
+//    ReactFeatureFlags.enableFabricLogs = true;
+//    ReactFeatureFlags.enableFabricInLogBox = true;
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
     // initializeFlipper(this, getReactNativeHost().getReactInstanceManager()); // Remove this line if you don't want Flipper enabled

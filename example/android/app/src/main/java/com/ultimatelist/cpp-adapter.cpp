@@ -16,6 +16,9 @@
 #include <jni.h>
 #include <memory>
 #include "Logger.h"
+#include "../example/reactnativemultithreading/tmregistry/RNTester2TurboModuleManagerDelegate.h"
+#include <jni.h>
+#include <jni.h>
 
 std::string jstring2string(JNIEnv *env, jstring jStr) {
     if (!jStr)
@@ -191,6 +194,7 @@ private:
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
   return facebook::jni::initialize(vm, [] {
     UltimateListModule::registerNatives();
+    facebook::react::RNTester2TurboModuleManagerDelegate::registerNatives();
   });
 }
 

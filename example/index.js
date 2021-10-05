@@ -1,3 +1,5 @@
+global.setImmediate = (a) => (a())
+
 import 'react-native-gesture-handler';
 import React from 'react';
 import { AppRegistry } from 'react-native';

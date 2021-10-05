@@ -78,6 +78,7 @@ import com.android.build.OutputFile
 project.ext.react = [
     enableHermes: true,  // clean and rebuild if changing
     entryFile: "index.js",
+  //  enableCodegen: true, // Keep this here until it's sync'ed to Android template.
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
@@ -180,11 +181,20 @@ android {
     packagingOptions {
         pickFirst '**/*.so'
     }
+    sourceSets.main {
+        java {
+            // SampleTurboModule.
+            srcDirs += [
+                    "$rootDir/ReactCommon/react/nativemodule/samples/platform/android",
+            ]
+        }
+    }
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
+    //implementation project(':ReactAndroid')
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
 
@@ -212,6 +222,71 @@ dependencies {
 
     implementation project(':reactnativemultithreading')
 }
+
+//// ---
+
+def enableCodegen = project.ext.react.enableCodegen
+
+//if (enableCodegen) {
+//    // TODO: Move all this logic to CodegenPlugin.java.
+//    def reactAndroidProjectDir = project(':ReactAndroid').projectDir;
+//    def reactAndroidBuildDir = project(':ReactAndroid').buildDir;
+//
+//    android {
+//        defaultConfig {
+//            externalNativeBuild {
+//                ndkBuild {
+//                    arguments "APP_PLATFORM=android-21",
+//                            "APP_STL=c++_shared",
+//                            "NDK_TOOLCHAIN_VERSION=clang",
+//                            // The following paths assume building React Native from source.
+//                            "GENERATED_SRC_DIR=$buildDir/generated/source",
+//                            "PROJECT_BUILD_DIR=$buildDir",
+//                            "REACT_ANDROID_DIR=$reactAndroidProjectDir",
+//                            "REACT_ANDROID_BUILD_DIR=$reactAndroidBuildDir"
+//                    cFlags "-Wall", "-Werror", "-fexceptions", "-frtti", "-DWITH_INSPECTOR=1"
+//                    cppFlags "-std=c++1y"
+//                    targets "rntester_appmodules"
+//                }
+//            }
+//        }
+//        externalNativeBuild {
+//            ndkBuild {
+//                path "$projectDir/src/main/jni/Android.mk"
+//            }
+//        }
+//    }
+//
+//    def packageReactNdkLibs = tasks.register("packageReactNdkLibs", Copy) {
+//        // TODO: handle extracting .so from prebuilt :ReactAndroid.
+//        dependsOn(":ReactAndroid:packageReactNdkLibs")
+//        dependsOn("generateCodegenSchemaFromJavaScript")
+//        from("$reactAndroidBuildDir/react-ndk/exported")
+//        into("$buildDir/react-ndk/exported")
+//    }
+//
+//    def cleanProjectNdkBuild = tasks.register("cleanProjectNdkBuild", Exec) {
+//        ignoreExitValue(true)
+//        tasks.forEach {
+//            t ->
+//                if (t.name.startsWith("externalNativeBuildClean")) {
+//                    dependsOn(t);
+//                }
+//        }
+//        // This .cxx folder may cause stale ndkBuild configuration.
+//        // See https://stackoverflow.com/a/58288851.
+//        commandLine("rm", "-rf", "$projectDir/.cxx")
+//    }
+//
+//    afterEvaluate {
+//        preBuild.dependsOn(packageReactNdkLibs)
+//        clean.dependsOn(cleanProjectNdkBuild)
+//    }
+//}
+
+// -----
+
+
 
 // Run this once to be able to run the application with BUCK
 // puts all compile dependencies into folder libs for BUCK to use

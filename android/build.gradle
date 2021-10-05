@@ -96,6 +96,7 @@ dependencies {
   def raAAR = "${rootDir}/../node_modules/react-native-reanimated/android/react-native-reanimated-${minor}-hermes.aar"
 
   extractJNI(files(rnAAR, jscAAR, raAAR))
+  //extractJNI(files(jscAAR, raAAR))
 }
 
 // fbjni

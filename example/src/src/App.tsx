@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import { Button, StyleSheet, View } from 'react-native';
 import RecyclerView from './Example';
 import { data as data1, data2 } from './data';
+import AnimatedStyleUpdateExample from './ChatHeads';
+
 
 
 export default function App() {
@@ -26,7 +28,9 @@ export default function App() {
   if (!visible) {
     return null;
   }
-  console.log({ altered })
+
+  console.log("FABRIC ENABLED", !!global?.nativeFabricUIManager)
+
 
   return (
     <View style={styles.container}>
@@ -45,6 +49,7 @@ export default function App() {
       <Button title={"Shuffle data"} onPress={() => {
         setReordered(prev => !prev)
       }} />
+      <AnimatedStyleUpdateExample/>
     </View>
   );
 }
