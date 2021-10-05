@@ -61,7 +61,7 @@ public class UltimateNativeModule extends ReactContextBaseJavaModule {
 
   public String stringValueAtIndexByKey(int index, String key, int id) {
     byte[] bytes = getStringValueAtIndexByKey(index, key, id);
-    return new String(bytes, StandardCharsets.UTF_8) + "--" + index;
+    return new String(bytes, StandardCharsets.UTF_8);
   }
 
   public String typeAtIndex(int index, int id) {
