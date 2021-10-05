@@ -153,6 +153,7 @@ function RecyclableViewsByType({ children, type, maxRendered }: { children: Reac
   const [cells, setCells] = useState<number>(1  )
   const onMoreRowsNeededHandler = useAnimatedRecycleHandler({
     onMoreRowsNeeded: e => {
+      "worklet"
       runOnJS(setCells)(e.cells)
     }
   }, [setCells])
