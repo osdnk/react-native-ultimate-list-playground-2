@@ -1,14 +1,11 @@
 package com.ultimatelist;
 
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.AttributeSet;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.ScrollKiller;
+import androidx.recyclerview.widget.RecyclerListViewHelper;
 import com.example.reactnativemultithreading.R;
 import com.facebook.react.uimanager.ThemedReactContext;
 
@@ -66,7 +63,17 @@ class RecyclerListView extends LinearLayout {
         }
 
 
-        ScrollKiller.dontDoThisConsumePendingUpdateOperations(view);
+        RecyclerListViewHelper.____consumePendingUpdateOperations(view);
+        int childrenCount = view.getChildCount();
+        for (int i = 0 ; i < childrenCount; i++) {
+          View child = view.getChildAt(i);
+          if (child instanceof FrameLayout) {
+            View row = ((FrameLayout) child).getChildAt(0);
+            if (row instanceof RecyclerRow) {
+              ((RecyclerRow) row).renotifyUltraFastEvents();
+            }
+          }
+        }
       }
     });
   }

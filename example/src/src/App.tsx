@@ -16,7 +16,7 @@ export default function App() {
 
 
   const data = useMemo(() => {
-    const currData = (altered ? data2 : data1).filter((_, i) => ! cut || (i > 5 || i < 3));
+    const currData = data1.map(a => altered ? {...a, nested: { prof:  a.nested.prof.split("").reverse().join("")  }} : a).filter((_, i) => ! cut || (i > 5 || i < 3));
     if (!reordered) {
       return currData
     }

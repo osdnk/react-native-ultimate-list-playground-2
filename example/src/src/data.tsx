@@ -11,12 +11,12 @@ export type DataCellNoIndex = {
 };
 
 const data: DataCellNoIndex[] = [
-  { color: 'red', name: 'Michał Osadnik', nested: { prof: 'X' } },
-  { color: 'blue', name: 'Beata Kozidrak', nested: { prof: 'X' } },
-  { color: 'green', name: 'Klucha Sierpowska', nested: { prof: 'V' } },
-  { color: 'yellow', name: 'Adam Małysz', nested: { prof: 'X' } },
-  { color: 'violet', name: 'Karol Wadowicz', nested: { prof: 'X' } },
-  { color: 'purple', name: 'Jan Wojtyłowicz', nested: { prof: 'X' } },
+  { color: 'red', name: 'Michał Osadnik', nested: { prof: 'ABC' } },
+  { color: 'blue', name: 'Beata Kozidrak', nested: { prof: 'BC' } },
+  { color: 'green', name: 'Klucha Sierpowska', nested: { prof: 'ABC' } },
+  { color: 'yellow', name: 'Adam Małysz', nested: { prof: 'ABCDE' } },
+  { color: 'violet', name: 'Karol Wadowicz', nested: { prof: 'ABCEDEF' } },
+  { color: 'purple', name: 'Jan Wojtyłowicz', nested: { prof: 'ABCDE' } },
 ];
 
 // const data2: DataCell[] = [
