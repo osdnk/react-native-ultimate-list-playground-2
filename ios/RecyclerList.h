@@ -6,6 +6,7 @@
 //
 
 #import <React/RCTViewManager.h>
+#import "RecyclerController.h"
 
 @interface RecyclerListManager : RCTViewManager
 @end

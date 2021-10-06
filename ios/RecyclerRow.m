@@ -12,6 +12,7 @@
 
 RCT_EXPORT_MODULE(RecyclerRow)
 
+
 - (RCTView *)view
 {
   return [[RCTView alloc] init];

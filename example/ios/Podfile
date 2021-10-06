@@ -11,7 +11,7 @@ target 'MultithreadingExample' do
     :hermes_enabled => true
   )
 
-  #pod 'react-native-multithreading', :path => '../..'
+  pod 'react-native-multithreading', :path => '../..'
 
   # Enables Flipper.
   #
