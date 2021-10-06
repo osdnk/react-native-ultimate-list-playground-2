@@ -13,8 +13,8 @@ add_library(
         ${PACKAGE_NAME}
         SHARED
         ../example/android/app/src/main/java/com/ultimatelist/cpp-adapter.cpp
-        ../example/android/app/src/main/java/com/ultimatelist/UltimateListInstaller.cpp
-        ../example/android/app/src/main/java/com/ultimatelist/ShareableNativeValue.cpp
+        ../cpp/UltimateListInstaller.cpp
+        ../cpp/ShareableNativeValue.cpp
         ../cpp/ThreadPool.cpp
 )
 

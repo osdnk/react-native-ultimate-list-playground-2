@@ -53,6 +53,7 @@ android {
     }
   }
 
+
   packagingOptions {
     excludes = ["**/libc++_shared.so"]
   }

@@ -6,7 +6,7 @@
 #include <react/jni/JavaScriptExecutorHolder.h>
 #include <android/log.h>
 
-#include "UltimateListInstaller.h"
+#include "../../../../../../../../cpp/UltimateListInstaller.h"
 
 #include "Scheduler.h"
 
