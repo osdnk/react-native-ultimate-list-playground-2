@@ -9,6 +9,27 @@
 #import <React/RCTView.h>
 
 
+
+@interface SampleCell : UICollectionViewCell
+@property UITextView* textView;
+@end
+
+@implementation SampleCell
+
+
+- (instancetype)initWithFrame:(CGRect)rect
+{
+  self = [super initWithFrame: rect];
+  if (self) {
+    _textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0 ,100, 100)];
+    [_textView setText:@"ERREWR"];
+    [self addSubview:_textView];
+  }
+  return self;
+}
+
+@end
+
 @interface SizeableView : RCTView
 
 @end
@@ -38,7 +59,7 @@
     [_collectionView setDataSource:self];
     [_collectionView setDelegate:self];
 
-    [_collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"cellIdentifier"];
+    [_collectionView registerClass:[SampleCell class] forCellWithReuseIdentifier:@"cellIdentifier"];
     [_collectionView setBackgroundColor:[UIColor redColor]];
 
 
@@ -63,9 +84,13 @@
 // The cell that is returned must be retrieved from a call to -dequeueReusableCellWithReuseIdentifier:forIndexPath:
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    UICollectionViewCell *cell=[collectionView dequeueReusableCellWithReuseIdentifier:@"cellIdentifier" forIndexPath:indexPath];
+  
+    NSInteger idx = indexPath.item;
+    SampleCell *cell=[collectionView dequeueReusableCellWithReuseIdentifier:@"cellIdentifier" forIndexPath:indexPath];
+  
 
     cell.backgroundColor=[UIColor greenColor];
+    [cell.textView setText:[[NSNumber numberWithLong:idx] stringValue]];
   
     
     return cell;
