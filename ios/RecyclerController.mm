@@ -7,11 +7,12 @@
 
 #import "RecyclerController.h"
 #import <React/RCTView.h>
+#import "UltimateListInstaller.h"
 
 
 
 @interface SampleCell : UICollectionViewCell
-@property UITextView* textView;
+@property (nonatomic, readonly) UITextView* textView;
 @end
 
 @implementation SampleCell
@@ -30,9 +31,6 @@
 
 @end
 
-@interface SizeableView : RCTView
-
-@end
 
 @implementation SizeableView
 
@@ -47,12 +45,14 @@
 
 @implementation RecyclerController {
   UIRefreshControl *_refreshControl;
+  SizeableView *_config;
 }
 
 - (void)viewDidLoad
 {
-     [super viewDidLoad];
-    self.view = [[SizeableView alloc] init];
+    [super viewDidLoad];
+    _config = [[SizeableView alloc] init];
+    self.view = _config;
 
      UICollectionViewFlowLayout *layout=[[UICollectionViewFlowLayout alloc] init];
     _collectionView=[[UICollectionView alloc] initWithFrame:self.view.frame collectionViewLayout:layout];
@@ -76,7 +76,7 @@
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return 100;
+  return osdnk::ultimatelist::obtainCount(_config.identifier.intValue);
 }
 
 

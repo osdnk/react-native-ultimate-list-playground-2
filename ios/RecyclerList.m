@@ -8,26 +8,15 @@
 #import "RecyclerList.h"
 #import <React/RCTView.h>
 
-@implementation RecyclerListManager {
-  // TODO make view strong holding
-  RecyclerController * rc;
-}
-
-
-// temp
- 
-
-// /temp
+@implementation RecyclerListManager
 
 RCT_EXPORT_MODULE(RecyclerListView) // TODO osdnk rename to RecyclerList
+RCT_EXPORT_VIEW_PROPERTY(identifier, NSNumber);
 
 - (UIView *)view
 {
-  //return [[RCTView alloc] init];
-  //rc = [[RecyclerController alloc] init];
-  RCTView* view = [RCTView new];
-  rc = [[RecyclerController alloc] init];
-  //rc.view = view;
+  RecyclerController* rc = [[RecyclerController alloc] init];
+  ((SizeableView* )rc.view).controller = rc;
   return rc.view;
 }
 

@@ -6,7 +6,25 @@
 //
 
 #import "RecyclerRow.h"
+#import "CellStorage.h"
 #import <React/RCTView.h>
+
+@interface RecyclerRow : RCTView
+
+@end
+
+@implementation RecyclerRow
+
+-(void)setBounds:(CGRect)bounds {
+  [super setBounds:bounds];
+  UIView* parent = self.superview.superview;
+  if ([parent isKindOfClass:CellStorage.class]) {
+    ((CellStorage*) parent).initialRect = bounds;
+  }
+}
+
+@end
+
 
 @implementation RecyclerRowManager
 
@@ -15,7 +33,7 @@ RCT_EXPORT_MODULE(RecyclerRow)
 
 - (RCTView *)view
 {
-  return [[RCTView alloc] init];
+  return [[RecyclerRow alloc] init];
 }
 
 @end

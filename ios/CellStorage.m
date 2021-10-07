@@ -8,13 +8,18 @@
 #import "CellStorage.h"
 #import <React/RCTView.h>
 
+@implementation CellStorage
+
+
+@end
+
 @implementation CellStorageManager
 
 RCT_EXPORT_MODULE(CellStorage)
 
 - (RCTView *)view
 {
-  return [[RCTView alloc] init];
+  return [[CellStorage alloc] init];
 }
 
 @end

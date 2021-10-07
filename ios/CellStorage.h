@@ -6,6 +6,12 @@
 //
 
 #import <React/RCTViewManager.h>
+#import <React/RCTView.h>
 
 @interface CellStorageManager : RCTViewManager
+
+@end
+
+@interface CellStorage : RCTView
+@property CGRect initialRect;
 @end
