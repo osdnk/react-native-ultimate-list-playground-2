@@ -21,7 +21,7 @@
 {
   self = [super initWithFrame: rect];
   if (self) {
-    _textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0 ,100, 100)];
+    _textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
     [_textView setText:@"ERREWR"];
     [self addSubview:_textView];
   }
@@ -96,9 +96,18 @@
     return cell;
 }
 
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
+  return 0.0;
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
+  return 0.0;
+}
+
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return CGSizeMake(200, 100);
+    // TODO osdnk
+    return CGSizeMake(self.view.frame.size.width, 100);
 }
 
 -(void)refershControlAction {
