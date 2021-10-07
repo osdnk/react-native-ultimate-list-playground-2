@@ -24,7 +24,10 @@ RCT_EXPORT_MODULE(RecyclerListView) // TODO osdnk rename to RecyclerList
 - (UIView *)view
 {
   //return [[RCTView alloc] init];
+  //rc = [[RecyclerController alloc] init];
+  RCTView* view = [RCTView new];
   rc = [[RecyclerController alloc] init];
+  //rc.view = view;
   return rc.view;
 }
 
