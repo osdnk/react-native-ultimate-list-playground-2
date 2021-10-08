@@ -7,11 +7,17 @@
 
 #import <React/RCTViewManager.h>
 #import <React/RCTView.h>
+#import "RecyclerRow.h"
 
 @interface CellStorageManager : RCTViewManager
 
 @end
 
-@interface CellStorage : RCTView
+@class ReusableCell;
+
+@interface CellStorage: RCTView
 @property CGRect initialRect;
+@property (nonatomic) NSString* type;
+- (RecyclerRow *) getFirstAvailableRow;
+- (void) enqueueForView:(ReusableCell *)cell;
 @end

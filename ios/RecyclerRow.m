@@ -7,11 +7,6 @@
 
 #import "RecyclerRow.h"
 #import "CellStorage.h"
-#import <React/RCTView.h>
-
-@interface RecyclerRow : RCTView
-
-@end
 
 @implementation RecyclerRow
 

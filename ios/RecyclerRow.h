@@ -6,6 +6,10 @@
 //
 
 #import <React/RCTViewManager.h>
+#import <React/RCTView.h>
 
 @interface RecyclerRowManager : RCTViewManager
+@end
+
+@interface RecyclerRow : RCTView
 @end
