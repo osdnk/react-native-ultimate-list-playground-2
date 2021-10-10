@@ -11,6 +11,7 @@
 @implementation RecyclerListManager
 
 RCT_EXPORT_MODULE(RecyclerListView) // TODO osdnk rename to RecyclerList
+RCT_EXPORT_VIEW_PROPERTY(identifier, NSNumber);
 
 - (UIView *)view
 {

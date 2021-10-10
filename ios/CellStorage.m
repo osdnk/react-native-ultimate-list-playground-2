@@ -33,7 +33,7 @@
     if (child.subviews.count == 1) {
       return (RecyclerRow *) child.subviews.firstObject;
     }
-  }
+  } 
   return nil;
 }
 

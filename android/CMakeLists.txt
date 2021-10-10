@@ -52,7 +52,7 @@ target_include_directories(
 file (GLOB LIBRN_DIR "${BUILD_DIR}/react-native-0*/jni/${ANDROID_ABI}")
 file (GLOB LIBJSC_DIR "${BUILD_DIR}/android-jsc*.aar/jni/${ANDROID_ABI}")
 file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*.aar/jni/${ANDROID_ABI}")
-
+file (GLOB HERMES_DIR "${BUILD_DIR}/third-party-ndk/hermes/jni/${ANDROID_ABI}")
 
 find_library(
         LOG_LIB
@@ -85,6 +85,7 @@ find_library(
         NO_CMAKE_FIND_ROOT_PATH
 )
 
+
 # linking
 
 find_library(
@@ -93,14 +94,25 @@ find_library(
         NO_CMAKE_FIND_ROOT_PATH
 )
 
+find_library(
+        HERMES_LIB
+        hermes
+        PATHS ${HERMES_DIR}
+        NO_CMAKE_FIND_ROOT_PATH
+)
+
+
 # build shared lib
 
 target_link_libraries(
         ${PACKAGE_NAME}
         ${LOG_LIB}
         ${REANIMATED_LIB}
+        fbjni::fbjni
         ${REACT_NATIVE_JNI_LIB}
         ${REACT_NATIVE_UTILS_LIB}
         ${FBJNI_LIB}
+        ${HERMES_LIB}
+        ${JSEXECUTOR_LIB}
         android
 )

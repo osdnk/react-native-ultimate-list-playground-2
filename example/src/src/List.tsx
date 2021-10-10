@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, Text, View, ViewProps, ViewStyle } from 'react-native';
+import { StyleSheet, Text, View, ViewProps, ViewStyle, TextInput, Platform } from 'react-native';
 import {
   CellStorage,
   RecyclerListView,
@@ -92,6 +92,7 @@ export function RecyclerRow(props: ViewProps) {
   //useState(() => (position.value = props.initialPosition))
   const onRecycleHandler = useAnimatedRecycleHandler({ onRecycle: (e) => {
     'worklet';
+    console.log(e)
     position!.value = e.position;
   }});
 
@@ -123,17 +124,18 @@ export function useUltraFastData<TCellData extends object>() {
 }
 
 export function UltraFastText({ binding }: { binding: string }) {
+  const Component = Platform.OS === "ios" ? TextInput : Text;
   return (
     // @ts-ignore
     <UltraFastTextWrapper binding={binding.___binding}>
-      <Text style={{ width: 100 }} />
+      <Component style={{ width: 100 }} />
     </UltraFastTextWrapper>
   );
 }
 
 const AnimatedCellStorage = Animated.createAnimatedComponent(CellStorage)
 
-const PRERENDERED_CELLS = 4;
+const PRERENDERED_CELLS = 15; // todo osdnk
 
 type WrappedView = { view: JSX.Element, maxRendered?: number }
 
@@ -160,7 +162,7 @@ function RecyclableViewsByType({ children, type, maxRendered }: { children: Reac
   console.log(maxRendered);
   // use reanimated event here and animated reaction
   return (
-    <AnimatedCellStorage  style={{ opacity: 0.1 }} type={type} onMoreRowsNeeded={onMoreRowsNeededHandler} onMoreRowsNeededBackup={e => {
+    <AnimatedCellStorage  style={{ opacity: 0.1 }} type={type} typeable={type} onMoreRowsNeeded={onMoreRowsNeededHandler} onMoreRowsNeededBackup={e => {
       const cellsn = e.nativeEvent.cells;
       if (cellsn > cells) {
         setCells(cellsn);
@@ -252,8 +254,9 @@ export function RecyclerView<TData>({
           {/*>*/}
           <RecyclerListView
             id={currId}
+            identifier={currId}
             count={data.length}
-            style={StyleSheet.absoluteFillObject}
+            style={[StyleSheet.absoluteFill, { backgroundColor: 'red' }]}
           />
           {/*</NativeViewGestureHandler>*/}
         </View>

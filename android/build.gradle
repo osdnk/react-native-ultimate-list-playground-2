@@ -1,5 +1,7 @@
+import org.apache.tools.ant.taskdefs.condition.Os
 import groovy.json.JsonSlurper
 import org.apache.tools.ant.filters.ReplaceTokens
+import java.nio.file.Paths
 
 buildscript {
   // The Android Gradle plugin is only required when opening the android folder stand-alone.
@@ -22,6 +24,10 @@ buildscript {
 
 apply plugin: 'com.android.library'
 apply plugin: "de.undercouch.download"
+
+def reactNative = new File("$projectDir/../node_modules/react-native")
+def thirdPartyNdkDir = new File("$buildDir/third-party-ndk")
+def reactNativeThirdParty = new File("$reactNative/ReactAndroid/src/main/jni/third-party")
 
 def getExtOrDefault(name, defaultValue) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : defaultValue
@@ -129,11 +135,137 @@ task extractJNIFiles {
   }
 }
 
+static def findNodeModulePath(baseDir, packageName) {
+  def basePath = baseDir.toPath().normalize()
+  // Node's module resolution algorithm searches up to the root directory,
+  // after which the base path will be null
+  while (basePath) {
+    def candidatePath = Paths.get(basePath.toString(), "node_modules", packageName)
+    if (candidatePath.toFile().exists()) {
+      return candidatePath.toString()
+    }
+    basePath = basePath.getParent()
+  }
+  return null
+}
+
+static def getNdkBuildName() {
+  if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+    return "ndk-build.cmd"
+  } else {
+    return "ndk-build"
+  }
+}
+
+def findNdkBuildFullPath() {
+  // we allow to provide full path to ndk-build tool
+  if (hasProperty("ndk.command")) {
+    return property("ndk.command")
+  }
+  // or just a path to the containing directory
+  if (hasProperty("ndk.path")) {
+    def ndkDir = property("ndk.path")
+    return new File(ndkDir, getNdkBuildName()).getAbsolutePath()
+  }
+
+  if (System.getenv("ANDROID_NDK") != null) {
+    def ndkDir = System.getenv("ANDROID_NDK")
+    return new File(ndkDir, getNdkBuildName()).getAbsolutePath()
+  }
+
+  if (hasProperty("ndkDirectory")) {
+    def ndkDir = android.ndkDirectory ? android.ndkDirectory.absolutePath : null
+
+    if (ndkDir) {
+      return new File(ndkDir, getNdkBuildName()).getAbsolutePath()
+    }
+  }
+
+  def Properties properties = new Properties()
+  if (rootProject.file("local.properties").exists()) {
+    properties.load(project.rootProject.file("local.properties").newDataInputStream())
+    def ndkDir=properties.getProperty("ndk.dir", null);
+    if(ndkDir)
+    {
+      return new File(ndkDir, getNdkBuildName()).getAbsolutePath()
+    }
+  }
+  return null
+}
+
+def getNdkBuildFullPath() {
+  def ndkBuildFullPath = findNdkBuildFullPath()
+  if (ndkBuildFullPath == null) {
+    throw new GradleScriptException(
+            "ndk-build binary cannot be found, check if you've set " +
+                    "\$ANDROID_NDK environment variable correctly or if ndk.dir is " +
+                    "setup in local.properties",
+            null)
+  }
+  if (!new File(ndkBuildFullPath).canExecute()) {
+    throw new GradleScriptException(
+            "ndk-build binary " + ndkBuildFullPath + " doesn't exist or isn't executable.\n" +
+                    "Check that the \$ANDROID_NDK environment variable, or ndk.dir in local.properties, is set correctly.\n" +
+                    "(On Windows, make sure you escape backslashes in local.properties or use forward slashes, e.g. C:\\\\ndk or C:/ndk rather than C:\\ndk)",
+            null)
+  }
+  return ndkBuildFullPath
+}
+
+task prepareHermes() {
+  def hermesPackagePath = findNodeModulePath(projectDir, "hermes-engine")
+  if (!hermesPackagePath) {
+    throw new GradleScriptException("Could not find the hermes-engine npm package", null)
+  }
+
+  def hermesAAR = file("$hermesPackagePath/android/hermes-debug.aar")
+  if (!hermesAAR.exists()) {
+    throw new GradleScriptException("The hermes-engine npm package is missing \"android/hermes-debug.aar\"", null)
+  }
+
+  def soFiles = zipTree(hermesAAR).matching({ it.include "**/*.so" })
+
+  copy {
+    from soFiles
+    from "$reactNative/ReactAndroid/src/main/jni/first-party/hermes/Android.mk"
+    into "$thirdPartyNdkDir/hermes"
+  }
+}
+
+task prepareJSC {
+  doLast {
+    def jscPackagePath = findNodeModulePath(projectDir, "jsc-android")
+    if (!jscPackagePath) {
+      throw new GradleScriptException("Could not find the jsc-android npm package", null)
+    }
+
+    def jscDist = file("$jscPackagePath/dist")
+    if (!jscDist.exists()) {
+      throw new GradleScriptException("The jsc-android npm package is missing its \"dist\" directory", null)
+    }
+
+    def jscAAR = fileTree(jscDist).matching({ it.include "**/android-jsc/**/*.aar" }).singleFile
+    def soFiles = zipTree(jscAAR).matching({ it.include "**/*.so" })
+
+    def headerFiles = fileTree(jscDist).matching({ it.include "**/include/*.h" })
+
+    copy {
+      from(soFiles)
+      from(headerFiles)
+      from("$reactNative/ReactAndroid/src/main/jni/third-party/jsc/Android.mk")
+
+      filesMatching("**/*.h", { it.path = "JavaScriptCore/${it.name}" })
+
+      includeEmptyDirs(false)
+      into("$thirdPartyNdkDir/jsc")
+    }
+  }
+}
+
 // third-party-ndk deps headers
 // mostly a copy of https://github.com/software-mansion/react-native-reanimated/blob/master/android/build.gradle#L115
 
 def downloadsDir = new File("$buildDir/downloads")
-def thirdPartyNdkDir = new File("$buildDir/third-party-ndk")
 def thirdPartyVersionsFile = new File("${rootDir}/../node_modules/react-native/ReactAndroid/gradle.properties")
 def thirdPartyVersions = new Properties()
 thirdPartyVersions.load(new FileInputStream(thirdPartyVersionsFile))

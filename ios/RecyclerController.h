@@ -18,7 +18,7 @@
 
 @interface SizeableView: RCTView
 
-@property (nonatomic, readonly) NSNumber* identifier;
+@property (nonatomic) NSNumber* identifier;
 // TODO osdnk dealloc
 @property (nonatomic, strong) RecyclerController* controller;
 

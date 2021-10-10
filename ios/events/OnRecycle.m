@@ -1,0 +1,54 @@
+//
+//  OnRecycle.m
+//  CocoaAsyncSocket
+//
+//  Created by Michał Osadnik on 10/10/2021.
+//
+
+#import "OnRecycle.h"
+
+
+@implementation RCTOnRecycleEvent {
+  NSDictionary* _body;
+  NSString *_eventName;
+}
+
+
+
+@synthesize viewTag = _viewTag;
+
+- (NSString *)eventName
+{
+    return @"onRecycle";
+}
+
+- (instancetype)initWithReactTag:(NSNumber *)reactTag position:(NSInteger)position {
+  if ((self = [super init])) {
+    _viewTag = reactTag;
+    _body = @{
+      @"position": [NSNumber numberWithLong:position]
+    };
+  }
+  return self;
+}
+
++ (NSString *)moduleDotMethod
+{
+  return @"RCTEventEmitter.receiveEvent";
+}
+
+- (NSArray *)arguments {
+  return @[self.viewTag, RCTNormalizeInputEventName(@"onRecycle"), _body];;
+}
+
+
+- (BOOL)canCoalesce {
+  return NO;
+}
+
+
+- (NSDictionary *)body {
+  return _body;
+}
+
+@end

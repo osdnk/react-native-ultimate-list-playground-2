@@ -8,6 +8,7 @@
 #import <React/RCTViewManager.h>
 #import <React/RCTView.h>
 #import "RecyclerRow.h"
+#import <React/RCTEventDispatcher.h>
 
 @interface CellStorageManager : RCTViewManager
 

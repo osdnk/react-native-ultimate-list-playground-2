@@ -47,7 +47,7 @@ function ContactCell() {
   const {
     name,
     nested: { prof },
-  } = useUltraFastData<DataCell>(); // const prof = "nested.prof"
+  } = useUltraFastData<DataCell>(); // const pr of = "nested.prof"
 
   return (
     <RecyclerRow

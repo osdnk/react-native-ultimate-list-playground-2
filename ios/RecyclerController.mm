@@ -16,6 +16,7 @@
 
 @implementation ReusableCell {
   BOOL _enqueued;
+  RecyclerRow *_row;
 }
 
 - (void)reparentIfNeeded {
@@ -23,8 +24,10 @@
     CellStorage* storage = [self.controller.cellStorages valueForKey:self.type];
     RecyclerRow* row = [storage getFirstAvailableRow];
     if (row != nil) {
+      row.config = (SizeableView*)self.controller.view;
       [row removeFromSuperview];
       [self addSubview:row];
+      _row = row;
     } else {
       if (!_enqueued) {
         [storage enqueueForView:self];
@@ -37,6 +40,9 @@
 - (void)recycle:(NSInteger)index {
   [self reparentIfNeeded];
   _index = index;
+  if (_row != nil) {
+    [_row recycle:index];
+  }
     
 }
 
