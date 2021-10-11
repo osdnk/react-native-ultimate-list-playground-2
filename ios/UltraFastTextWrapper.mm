@@ -24,7 +24,7 @@
       int listId = identifier.intValue;
       std::string newText = osdnk::ultimatelist::obtainStringValueAtIndexByKey((int)index, self.binding.UTF8String, listId);
       NSString* newTextWrapped = [NSMutableString stringWithUTF8String:newText.c_str()];
-      // TODO osdnk fixme 
+      // TODO osdnk fixme
       [textView setAttributedText:[[NSAttributedString alloc] initWithString:newTextWrapped]];
       
   
@@ -32,8 +32,63 @@
 //
 //      NSTextStorage *textStorage2 = [[NSTextStorage alloc] initWithString:@"XXXX" attributes:text];
       
-      //[NSTextStorage alloc] initWithString:<#(nonnull NSString *)#>
+      //[NSTextStorage alloc] initWithString:(nonnull NSString *)
 //      [textStorage beginEditing];
+      // TODO osdnk use  enumerate
+//      [textStorage replaceCharactersInRange:NSRangeFromString(textStorage.string) withString:newTextWrapped];
+//      [textStorage endEditing];
+//      [textView setTextStorage:textStorage2 contentFrame:*rect descendantViews:descendantViews];
+    }
+  }
+  if ([maybeTextView isKindOfClass:RCTTextView.class]) {
+    RCTTextView *textView = ((RCTTextView*) maybeTextView);
+    
+    NSNumber* identifier = self.boundRow.config.identifier;;
+    if (identifier != nil) {
+      int listId = identifier.intValue;
+      std::string newText = osdnk::ultimatelist::obtainStringValueAtIndexByKey((int)index, self.binding.UTF8String, listId);
+      NSString* newTextWrapped = [NSMutableString stringWithUTF8String:newText.c_str()];
+      // TODO osdnk fixme
+      // [textView];
+      NSTextStorage *textStorage = [textView valueForKey:@"textStorage"];
+      CGRect *contentFrame = (__bridge CGRect*)[textView valueForKey:@"contentFrame"];
+      NSArray<UIView *> *descendantViews = [textView valueForKey:@"descendantViews"];
+      
+     // @synchronized (self) {
+        
+//        NSRange range = NSRangeFromString(textStorage.string);
+        [textStorage beginEditing];
+     // if (index > 40) {
+    //    [textStorage deleteCharactersInRange:NSMakeRange(0, textStorage.string.length)];
+    //  } else {
+        [textStorage replaceCharactersInRange:NSMakeRange(0, textStorage.string.length) withString:newTextWrapped];
+      //}
+      //[textStorage replaceCharactersInRange:NSMakeRange(0, textStorage.string.length) withString:newTextWrapped];
+      
+       
+       // [textStorage setAttributes:@{} range:NSMakeRange(0, <#NSUInteger len#>)(newTextWrapped)];
+        [textStorage endEditing];
+      
+      
+     
+//      [textStorage addLayoutManager:((NSTextStorage*)[textView valueForKey:@"textStorage"]).layoutManagers.firstObject];
+      
+//      [textView chil]
+      
+      [textView setTextStorage:textStorage contentFrame:*contentFrame descendantViews:descendantViews];
+//      [textStorage2 removeA:<#(nonnull NSAttributedStringKey)#> range:<#(NSRange)#>]
+    
+//      [textView setAttributedText:[[NSAttributedString alloc] initWithString:newTextWrapped]];
+      
+  
+//      NSString* newTextWrapped = [NSMutableString stringWithUTF8String:newText.c_str()];
+//
+//      NSTextStorage *textStorage2 = [[NSTextStorage alloc] initWithString:@"XXXX" attributes:text];
+      
+      //[NSTextStorage alloc] initWithString:(nonnull NSString *)
+      
+//      [textStorage beginEditing];
+      // TODO osdnk use  enumerate
 //      [textStorage replaceCharactersInRange:NSRangeFromString(textStorage.string) withString:newTextWrapped];
 //      [textStorage endEditing];
 //      [textView setTextStorage:textStorage2 contentFrame:*rect descendantViews:descendantViews];

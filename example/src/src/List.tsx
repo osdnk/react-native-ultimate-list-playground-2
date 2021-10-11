@@ -123,12 +123,12 @@ export function useUltraFastData<TCellData extends object>() {
   return new Proxy({ binding: '' }, namingHandler) as any as TCellData;
 }
 
+
 export function UltraFastText({ binding }: { binding: string }) {
-  const Component = Platform.OS === "ios" ? TextInput : Text;
   return (
     // @ts-ignore
     <UltraFastTextWrapper binding={binding.___binding}>
-      <Component style={{ width: 100 }} />
+      <Text style={{ width: 100 }} />
     </UltraFastTextWrapper>
   );
 }
