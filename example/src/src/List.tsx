@@ -92,7 +92,6 @@ export function RecyclerRow(props: ViewProps) {
   //useState(() => (position.value = props.initialPosition))
   const onRecycleHandler = useAnimatedRecycleHandler({ onRecycle: (e) => {
     'worklet';
-    console.log(e)
     position!.value = e.position;
   }});
 

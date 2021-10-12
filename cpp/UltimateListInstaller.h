@@ -1,3 +1,4 @@
+#ifdef __cplusplus
 #include <__bit_reference>
 // C osdnk
 
@@ -27,3 +28,4 @@ namespace ultimatelist {
 
 }
 }
+#endif

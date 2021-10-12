@@ -8,8 +8,9 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTView.h>
 #import "CellStorage.h"
+#import "StickyGridCollectionViewLayout.h"
 
-@interface RecyclerController : UIViewController<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
+@interface RecyclerController : UIViewController<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout, WXRecycleListLayoutDelegate>
 {
     UICollectionView *_collectionView;
 }

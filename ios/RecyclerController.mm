@@ -9,7 +9,12 @@
 #import <React/RCTView.h>
 #import "UltimateListInstaller.h"
 #import <objc/runtime.h>
-
+//@class StickyGridCollectionViewLayout;
+//@protocol StickyGridCollectionViewLayout;
+//
+//@interface StickyGridCollectionViewLayout : UICollectionViewFlowLayout
+//
+//@end
 
 #define REUSABLE_CELL "ReusableCell"
 
@@ -85,6 +90,7 @@
   self = [super init];
   if (self) {
     self.cellStorages = [NSMutableDictionary new];
+    
   }
   return self;
 }
@@ -95,7 +101,8 @@
   _config = [[SizeableView alloc] init];
   self.view = _config;
   
-  UICollectionViewFlowLayout *layout=[[UICollectionViewFlowLayout alloc] init];
+  StickyGridCollectionViewLayout *layout=[[StickyGridCollectionViewLayout alloc] init];
+  layout.delegate = self;
   _collectionView=[[UICollectionView alloc] initWithFrame:self.view.frame collectionViewLayout:layout];
   [_collectionView setDataSource:self];
   [_collectionView setDelegate:self];
@@ -180,4 +187,11 @@
 }
 
 
-@end
+  - (BOOL)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout isNeedStickyForIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.item == 1) {
+      return YES;
+    }
+    return NO;
+  }
+  
+  @end

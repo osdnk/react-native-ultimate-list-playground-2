@@ -7,6 +7,7 @@
 
 #import "UltraFastAbstractComponentWrapper.h"
 #import "RecyclerRow.h"
+#import "react-native-multithreading-umbrella.h"
 
 @implementation UltraFastAbstractComponentWrapper {
   BOOL _registered;

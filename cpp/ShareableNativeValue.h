@@ -5,6 +5,7 @@
 #ifndef MULTITHREADINGEXAMPLE_SHAREABLENATIVEVALUE_H
 #define MULTITHREADINGEXAMPLE_SHAREABLENATIVEVALUE_H
 
+#ifdef __cplusplus
 #include <memory>
 #include <jsi/jsi.h>
 #include <unordered_map>
@@ -100,5 +101,5 @@ private:
 
 
 
-
+#endif
 #endif //MULTITHREADINGEXAMPLE_SHAREABLENATIVEVALUE_H

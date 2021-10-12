@@ -9,7 +9,6 @@
 
 #import <RNReanimated/REAIOSScheduler.h>
 #import <RNReanimated/REAIOSErrorHandler.h>
-#import "MakeJSIRuntime.h"
 
 using namespace facebook;
 
