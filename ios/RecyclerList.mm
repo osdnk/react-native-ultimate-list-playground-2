@@ -7,11 +7,19 @@
 
 #import "RecyclerList.h"
 #import <React/RCTView.h>
+#import "
 
 @implementation RecyclerListManager
 
 RCT_EXPORT_MODULE(RecyclerListView) // TODO osdnk rename to RecyclerList
 RCT_EXPORT_VIEW_PROPERTY(identifier, NSNumber);
+
+- (instancetype)init {
+  if (self = [super init]) {
+    
+  }
+  return self;
+}
 
 - (UIView *)view
 {
