@@ -16,6 +16,6 @@
 
 @interface StickyGridCollectionViewLayout : UICollectionViewFlowLayout
 
-@property (nonatomic, weak) id<WXRecycleListLayoutDelegate> delegate;
+@property (nonatomic, weak) id<StickyGridCollectionViewLayoutDelegate> delegate;
 
 @end

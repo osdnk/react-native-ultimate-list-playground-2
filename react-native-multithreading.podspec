@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   }
   s.requires_arc = true
 
-  s.source_files = "ios/**/*.{h,m,mm }", "cpp/**/*.{h,cpp}"
+  s.source_files = "ios/**/*.{h,m,mm}", "cpp/**/*.{h,cpp}"
 
   s.dependency "React-callinvoker"
   s.dependency "React"

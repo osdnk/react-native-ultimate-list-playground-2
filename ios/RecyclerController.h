@@ -10,11 +10,14 @@
 #import "CellStorage.h"
 #import "StickyGridCollectionViewLayout.h"
 
-@interface RecyclerController : UIViewController<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout, WXRecycleListLayoutDelegate>
+@interface RecyclerController : UIViewController<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout, StickyGridCollectionViewLayoutDelegate>
 {
     UICollectionView *_collectionView;
 }
 @property (nonatomic) NSMutableDictionary<NSString*, CellStorage *> *cellStorages;
+@property (class, nonatomic) NSMutableDictionary<NSNumber*, RecyclerController*>* lists;
++ (void)notifyNewData:(int)listId;
+- (void)notifyNewData;
 @end
 
 @interface SizeableView: RCTView

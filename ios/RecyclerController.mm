@@ -78,11 +78,60 @@
   [super setBounds:bounds];
 }
 
+- (void)didMoveToWindow {
+  [super didMoveToWindow];
+
+  // TODO osdnk check retaining
+  [RecyclerController.lists setObject:self.controller forKey:self.identifier];
+}
+
 @end
+
+static NSMutableDictionary<NSNumber *,RecyclerController *> * _lists;
 
 @implementation RecyclerController {
   UIRefreshControl *_refreshControl;
   SizeableView *_config;
+}
+
+
+
++ (NSMutableDictionary<NSNumber *,RecyclerController *> *)lists {
+  return _lists;
+}
++ (void)setLists:(NSMutableDictionary<NSNumber *,RecyclerController *> *)lists {
+  _lists = lists;
+}
+
+
++ (void)notifyNewData:(int)listId {
+  RecyclerController* controller = [RecyclerController.lists objectForKey:[NSNumber numberWithInt:listId]];
+  if (controller != nil) {
+    [controller notifyNewData];
+  }
+}
+
+
+- (void)notifyNewData {
+  osdnk::ultimatelist::moveFromPreSet(_config.identifier.intValue);
+  std::vector<int> added = osdnk::ultimatelist::obtainNewIndices(_config.identifier.intValue);
+  NSMutableArray<NSIndexPath*>* addedPaths = [NSMutableArray new];
+  for (int i = 0; i < added.size(); i++) {
+    [addedPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+  }
+  [_collectionView insertItemsAtIndexPaths:addedPaths];
+  
+  std::vector<int> removed = osdnk::ultimatelist::obtainRemovedIndices(_config.identifier.intValue);
+  NSMutableArray<NSIndexPath*>* removedPaths = [NSMutableArray new];
+  for (int i = 0; i < removed.size(); i++) {
+    [removedPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+  }
+  [_collectionView deleteItemsAtIndexPaths:removedPaths];
+  
+  std::vector<int> moved = osdnk::ultimatelist::obtainMovedIndices(_config.identifier.intValue);
+  for (int i = 0; i < moved.size(); i+=2) {
+    [_collectionView moveItemAtIndexPath:[NSIndexPath indexPathForRow:i inSection:0] toIndexPath:[NSIndexPath indexPathForRow:i+1 inSection:0]];
+  }
 }
 
 
@@ -113,7 +162,6 @@
   [_collectionView addSubview:_refreshControl];
   _collectionView.alwaysBounceVertical = YES;
   [self.view addSubview:_collectionView];
-  
   
   // Do any additional setup after loading the view, typically from a nib.
 }

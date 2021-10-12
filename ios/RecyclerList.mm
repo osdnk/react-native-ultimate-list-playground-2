@@ -7,16 +7,21 @@
 
 #import "RecyclerList.h"
 #import <React/RCTView.h>
-#import "
+#import "UltimateListInstaller.h"
 
 @implementation RecyclerListManager
 
 RCT_EXPORT_MODULE(RecyclerListView) // TODO osdnk rename to RecyclerList
 RCT_EXPORT_VIEW_PROPERTY(identifier, NSNumber);
 
+
 - (instancetype)init {
   if (self = [super init]) {
-    
+    std::function<void(int)> callback = [](int value) {
+      [RecyclerController notifyNewData:value];
+    };
+    RecyclerController.lists = [NSMutableDictionary new];
+    osdnk::ultimatelist::setNotifyNewData(callback);
   }
   return self;
 }
