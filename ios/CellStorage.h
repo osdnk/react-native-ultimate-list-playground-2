@@ -19,6 +19,11 @@
 @interface CellStorage: RCTView
 @property CGRect initialRect;
 @property (nonatomic) NSString* type;
+@property(nonatomic, copy) RCTDirectEventBlock onMoreRowsNeeded;
 - (RecyclerRow *) getFirstAvailableRow;
+- (void) dequeueView:(ReusableCell*)cell;
 - (void) enqueueForView:(ReusableCell *)cell;
+- (void) notifyNeedMoreCells;
+- (void) notifyNewViewAvailable;
+- (instancetype) initWithBridge:(RCTBridge*)bridge;
 @end

@@ -136,7 +136,7 @@ export function UltraFastText({ binding }: { binding: string }) {
 
 const AnimatedCellStorage = Animated.createAnimatedComponent(CellStorage)
 
-const PRERENDERED_CELLS = 15; // todo osdnk
+const PRERENDERED_CELLS = 2; // todo osdnk
 
 type WrappedView = { view: JSX.Element, maxRendered?: number }
 
@@ -153,14 +153,15 @@ function RecyclableViews({ viewTypes }: { viewTypes: { [_ :string]: Descriptor }
 }
 
 function RecyclableViewsByType({ children, type, maxRendered }: { children: React.ReactChild, type: string, maxRendered: number | undefined }) {
-  const [cells, setCells] = useState<number>(1  )
+  const [cells, setCells] = useState<number>(2)
   const onMoreRowsNeededHandler = useAnimatedRecycleHandler({
     onMoreRowsNeeded: e => {
       "worklet"
+      console.log(e)
       runOnJS(setCells)(e.cells)
     }
   }, [setCells])
-  console.log(maxRendered);
+  console.log(type, cells);
   // use reanimated event here and animated reaction
   return (
     <AnimatedCellStorage  style={{ opacity: 0.1 }} type={type} typeable={type} onMoreRowsNeeded={onMoreRowsNeededHandler} onMoreRowsNeededBackup={e => {
@@ -170,8 +171,9 @@ function RecyclableViewsByType({ children, type, maxRendered }: { children: Reac
       }
     }} >
       {/* TODO make better render counting  */}
-      {[...Array(maxRendered || Math.max(PRERENDERED_CELLS, cells + 2))].map((_, index) => (
+      {[...Array(Math.max(PRERENDERED_CELLS, cells))].map((_, index) => (
         <RecyclerRowWrapper
+          removeClippedSubviews={false}
           initialPosition={index}
           key={`rl-${index}`}
           //initialPosition={index}

@@ -15,4 +15,7 @@
                         position:(NSInteger)position
                     prevPosition:(NSInteger)prevPosition;
 
+- (instancetype)initWithReactTag:(NSNumber *)reactTag
+                           cells:(NSInteger)cells;;
+
 @end

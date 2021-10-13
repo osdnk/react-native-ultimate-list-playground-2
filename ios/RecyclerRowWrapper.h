@@ -6,6 +6,13 @@
 //
 
 #import <React/RCTViewManager.h>
+#import <React/RCTView.h>
+
+@interface RecyclerRowWrapper : RCTView
+@property(nonatomic) BOOL reparented;
+@end
+
 
 @interface RecyclerRowWrapperManager : RCTViewManager
 @end
+

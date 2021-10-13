@@ -9,6 +9,7 @@
 #import <React/RCTView.h>
 #import "UltimateListInstaller.h"
 #import <objc/runtime.h>
+#import "RecyclerRowWrapper.h"
 //@class StickyGridCollectionViewLayout;
 //@protocol StickyGridCollectionViewLayout;
 //
@@ -29,12 +30,16 @@
     CellStorage* storage = [self.controller.cellStorages valueForKey:self.type];
     RecyclerRow* row = [storage getFirstAvailableRow];
     if (row != nil) {
+      ((RecyclerRowWrapper*)row.superview).reparented = YES;
       row.config = (SizeableView*)self.controller.view;
       [row removeFromSuperview];
       [self addSubview:row];
+      
+      [storage dequeueView:self];
       _row = row;
     } else {
       if (!_enqueued) {
+        [storage notifyNeedMoreCells];
         [storage enqueueForView:self];
         _enqueued = YES;
       }
@@ -52,7 +57,10 @@
 }
 
 - (void)notifyNewViewAvailable {
-  [self reparentIfNeeded];
+   [self reparentIfNeeded];
+   if (_row != nil) {
+     [_row recycle:_index];
+   }
 }
 
 - (instancetype)initWithFrame:(CGRect)rect
@@ -62,6 +70,7 @@
     NSString * classNameWrapper = NSStringFromClass([self class]);
     NSString * className = [classNameWrapper substringWithRange:NSMakeRange(0, classNameWrapper.length - sizeof(REUSABLE_CELL) + 1)];
     _type = className;
+    _enqueued = NO;
   }
   return self;
 }
