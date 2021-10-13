@@ -7,7 +7,8 @@ import {
   RecyclerRowWrapper as RawRecyclerRowWrapper,
   UltraFastTextWrapper,
 } from './ultimate';
-import Animated, { runOnJS, useDerivedValue, useSharedValue } from 'react-native-reanimated';
+import Animated, { runOnJS, useSharedValue, useDerivedValue } from 'react-native-reanimated'
+// import {  } from './useImmediateDerivedValue';
 import { useAnimatedRecycleHandler } from './useAnimatedRecycleEvent';
 import type { SharedValue } from 'react-native-reanimated/src/reanimated2/commonTypes';
 // @ts-ignore TODO osdnk
@@ -26,7 +27,7 @@ const InitialPositionContext = createContext<number>(
 
 const AnimatedRecyclableRow = Animated.createAnimatedComponent(RawRecyclerRow);
 
-function usePosition() {
+export function usePosition() {
   return useContext(PositionContext);
 }
 
@@ -92,6 +93,7 @@ export function RecyclerRow(props: ViewProps) {
   //useState(() => (position.value = props.initialPosition))
   const onRecycleHandler = useAnimatedRecycleHandler({ onRecycle: (e) => {
     'worklet';
+    console.log(e)
     position!.value = e.position;
   }});
 
@@ -127,7 +129,7 @@ export function UltraFastText({ binding }: { binding: string }) {
   return (
     // @ts-ignore
     <UltraFastTextWrapper binding={binding.___binding}>
-      <Text style={{ width: 100 }} />
+      <Text style={{ width: 130 }} />
     </UltraFastTextWrapper>
   );
 }
@@ -231,6 +233,10 @@ export function RecyclerView<TData>({
   })), [data, getIsSticky, getIsSticky, getHash])
   const prevData = useRef<TraversedData<TData>[]>()
 
+ // const datas = useDerivedValue(() => data, []);
+  const datas = Platform.OS === 'ios' ? useSharedValue(data) : useDerivedValue(() => data, [data]);
+ //Platform.OS === 'ios' && (datas.value = data);
+
   useImmediateEffect(() => {
     // @ts-ignore
     global._list___setData(traversedData, currId, prevData.current ? getDiffArray(prevData.current, traversedData) : undefined)
@@ -241,7 +247,6 @@ export function RecyclerView<TData>({
 
   prevData.current = traversedData;
 
-  const datas = useDerivedValue(() => data, []);
   return (
     <GestureHandlerRootView>
       <RawDataContext.Provider value={data}>

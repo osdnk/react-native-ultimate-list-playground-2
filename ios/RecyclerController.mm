@@ -42,13 +42,13 @@
   }
 }
 
+
 - (void)recycle:(NSInteger)index {
   [self reparentIfNeeded];
   _index = index;
   if (_row != nil) {
     [_row recycle:index];
   }
-    
 }
 
 - (void)notifyNewViewAvailable {
@@ -113,24 +113,34 @@ static NSMutableDictionary<NSNumber *,RecyclerController *> * _lists;
 
 
 - (void)notifyNewData {
-  osdnk::ultimatelist::moveFromPreSet(_config.identifier.intValue);
-  std::vector<int> added = osdnk::ultimatelist::obtainNewIndices(_config.identifier.intValue);
-  NSMutableArray<NSIndexPath*>* addedPaths = [NSMutableArray new];
-  for (int i = 0; i < added.size(); i++) {
-    [addedPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
-  }
-  [_collectionView insertItemsAtIndexPaths:addedPaths];
-  
-  std::vector<int> removed = osdnk::ultimatelist::obtainRemovedIndices(_config.identifier.intValue);
-  NSMutableArray<NSIndexPath*>* removedPaths = [NSMutableArray new];
-  for (int i = 0; i < removed.size(); i++) {
-    [removedPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
-  }
-  [_collectionView deleteItemsAtIndexPaths:removedPaths];
-  
-  std::vector<int> moved = osdnk::ultimatelist::obtainMovedIndices(_config.identifier.intValue);
-  for (int i = 0; i < moved.size(); i+=2) {
-    [_collectionView moveItemAtIndexPath:[NSIndexPath indexPathForRow:i inSection:0] toIndexPath:[NSIndexPath indexPathForRow:i+1 inSection:0]];
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    osdnk::ultimatelist::moveFromPreSet(self->_config.identifier.intValue);
+    std::vector<int> added = osdnk::ultimatelist::obtainNewIndices(self->_config.identifier.intValue);
+    NSMutableArray<NSIndexPath*>* addedPaths = [NSMutableArray new];
+    for (int i = 0; i < added.size(); i++) {
+      [addedPaths addObject:[NSIndexPath indexPathForRow:added[i] inSection:0]];
+    }
+    [self->_collectionView insertItemsAtIndexPaths:addedPaths];
+    
+    std::vector<int> removed = osdnk::ultimatelist::obtainRemovedIndices(self->_config.identifier.intValue);
+    NSMutableArray<NSIndexPath*>* removedPaths = [NSMutableArray new];
+    for (int i = 0; i < removed.size(); i++) {
+      [removedPaths addObject:[NSIndexPath indexPathForRow:removed[i] inSection:0]];
+    }
+    [self->_collectionView deleteItemsAtIndexPaths:removedPaths];
+    
+    std::vector<int> moved = osdnk::ultimatelist::obtainMovedIndices(self->_config.identifier.intValue);
+    for (int i = 0; i < moved.size(); i+=2) {
+      [self->_collectionView moveItemAtIndexPath:[NSIndexPath indexPathForRow:moved[i] inSection:0] toIndexPath:[NSIndexPath indexPathForRow:moved[i+1] inSection:0]];
+    }
+    [self tryUpdating];
+  }];
+}
+
+- (void) tryUpdating {
+  for (UICollectionViewCell* cell in _collectionView.visibleCells) {
+    NSIndexPath* path = [_collectionView indexPathForCell:cell];
+    [((ReusableCell*) cell) recycle:path.item];
   }
 }
 
@@ -236,10 +246,7 @@ static NSMutableDictionary<NSNumber *,RecyclerController *> * _lists;
 
 
   - (BOOL)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout isNeedStickyForIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.item == 1) {
-      return YES;
-    }
-    return NO;
+    return osdnk::ultimatelist::obtainIsHeaderAtIndex((int)indexPath.item, _config.identifier.intValue);
   }
   
   @end

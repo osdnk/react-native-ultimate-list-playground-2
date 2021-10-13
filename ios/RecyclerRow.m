@@ -36,7 +36,7 @@
 }
 
 -(void)recycle:(NSInteger)index {
-  [_bridge.eventDispatcher sendEvent:[[RCTOnRecycleEvent alloc] initWithReactTag:self.reactTag position:index]];
+  [_bridge.eventDispatcher sendEvent:[[RCTOnRecycleEvent alloc] initWithReactTag:self.reactTag position:index prevPosition:_index]];
   _index = index;
   for (UltraFastAbstractComponentWrapper* component in _ultraFastComponents) {
     [component notifyNewData:index];

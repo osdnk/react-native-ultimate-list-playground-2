@@ -9,6 +9,7 @@ import {
   useRowTypesLayout,
   useSharedDataAtIndex,
   useUltraFastData,
+  usePosition, useReactiveDataAtIndex,
 } from './List';
 import type { DataCell } from './data';
 
@@ -18,10 +19,13 @@ import type { DataCell } from './data';
 
 // HERE starts example
 function ContactCell() {
+  const position = usePosition()
   const data = useSharedDataAtIndex();
-  //const reactiveData = useReactiveDataAtIndex();
+  //const reactiveData = useReactiveDataA tIndex();
   //console.log(reactiveData)
-  const text = useDerivedValue(() => data.value?.name ?? data?.name ??'NONE');
+  //const text = useDerivedValue(() => data.value?.name ?? data?.name ??'NONE');
+  const text = useDerivedValue(() => "pos: " + position.value);
+  const color2 = useDerivedValue(() => data.value?.color);
   const color = useDerivedValue(() => {
     const name = data.value?.name ?? '';
     const colors = ['red', 'green', 'blue', 'white', 'yellow'];
@@ -37,12 +41,17 @@ function ContactCell() {
     return colors[Math.abs(hash) % 5];
   });
   const circleStyle = useAnimatedStyle(() => ({
-    backgroundColor: data.value.color,
+    opacity: (position?.value ?? 0 % 10) / 10,
+    backgroundColor: 'red',
   }));
-
-  const wrapperStyle = useAnimatedStyle(() => ({
-    height: data.value.color === "green" ? 200 : 100,
+  const circleStyle2 = useAnimatedStyle(() => ({
+    opacity: (data.value?.index ?? 0 % 10) / 10,
+    backgroundColor: 'red',
   }));
+  //
+  // const wrapperStyle = useAnimatedStyle(() => ({
+  //   height: data.value.color === "green" ? 200 : 100,
+  // }));
 
   const {
     name,
@@ -83,21 +92,33 @@ function ContactCell() {
           style={[
             circleStyle,
             {
-              width: 60,
-              height: 60,
+              width: 30,
+              height: 30,
               borderRadius: 30,
               marginRight: 20,
             },
           ]}
         />
-        <UltraFastText binding={prof} />
+        <Animated.View
+          style={[
+            circleStyle2,
+            {
+              width: 30,
+              height: 30,
+              borderRadius: 30,
+              marginRight: 20,
+            },
+          ]}
+        />
         {/*<UltraFastText binding={name} />*/}
         {/*<UltraFastSwtich binding={"type"} >*/}
         {/*  <UltraFastCase type="loading"/>*/}
         {/*</UltraFastSwtich>*/}
 
         {/*<UltraFastText binding={name} />*/}
-        <ReText text={text} style={{ width: 150 }} />
+        <ReText text={text} style={{ width: 120 }} />
+        <UltraFastText binding={name} />
+
 
         {/*<RecyclableText style={{ width: '70%' }}>Beata Kozidrak</RecyclableText>*/}
       </View>
@@ -112,6 +133,17 @@ function ContactCell2() {
     name,
   } = useUltraFastData<DataCell>(); // const prof = "nested.prof"
 
+  const data = useSharedDataAtIndex();
+  const reactiveData = useReactiveDataAtIndex();
+  //console.log(reactiveData)
+  //const text = useDerivedValue(() => data.value?.name ?? data?.name ??'NONE');
+  const text = useDerivedValue(() => { ; return data.value?.name });
+  const color2 = useDerivedValue(() => data.value?.color);
+
+  const circleStyle = useAnimatedStyle(() => ({
+    backgroundColor: color2.value,
+  }));
+
   return (
     <RecyclerRow
       type="type2"
@@ -122,6 +154,28 @@ function ContactCell2() {
       }}
     >
       <UltraFastText binding={name} />
+      <Animated.View
+        style={[
+          {
+            backgroundColor: reactiveData?.color,
+            width: 30,
+            height: 30,
+            borderRadius: 30,
+            marginRight: 20,
+          },
+        ]}
+      />
+      <Animated.View
+        style={[
+          circleStyle,
+          {
+            width: 30,
+            height: 30,
+            borderRadius: 30,
+            marginRight: 20,
+          },
+        ]}
+      />
     </RecyclerRow>
   );
 }
@@ -157,7 +211,7 @@ export default function Example({ data } : { data: DataCell[] }) {
     type2: <ContactCell2/>
   }))
 
-  const getViewType = useCallback((d) => d.index === 0 ? "header" : d.index %2 === 0 ? "type1" : "type2", [])
+  const getViewType = useCallback((d) => d.index === 0 ? "header" : d.index %2 === 0 ? "type1" : "type1", [])
   const isSticky = useCallback((_, __, i) => i === 0, [])
   const getHash = useCallback((d) => d.name, [])
 

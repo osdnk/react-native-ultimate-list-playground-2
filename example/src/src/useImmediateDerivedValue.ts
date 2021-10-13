@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { initialUpdaterRun } from 'react-native-reanimated/src/reanimated2/animation';
+import { initialUpdaterRun } from 'react-native-reanimated/src/reanimated2/animations';
 import type {
   BasicWorkletFunction,
   SharedValue,
@@ -47,7 +47,7 @@ export function useDerivedValue<T>(
     };
   }, dependencies);
 
-  useImmediateEffect(() => {
+  useEffect(() => {
     return () => {
       initRef.current = null;
     };

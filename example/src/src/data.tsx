@@ -32,7 +32,7 @@ let moreData: DataCell[] = [];
 
 for (let i = 0; i < 1000; i++) {
 
-  moreData = moreData.concat(data.map((d, i) => ({ ...d, name: d.name + (moreData.length + i),  index: moreData.length + i })));
+  moreData = moreData.concat(data.map((d, i) => ({ ...d, name: 'x' + (moreData.length + i) + d.name ,  index: moreData.length + i })));
 }
 
 const data2: DataCellNoIndex[] = [

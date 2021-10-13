@@ -12,6 +12,7 @@
 @interface RCTOnRecycleEvent : NSObject <RCTEvent>
 
 - (instancetype)initWithReactTag:(NSNumber *)reactTag
-                        position:(NSInteger)position;
+                        position:(NSInteger)position
+                    prevPosition:(NSInteger)prevPosition;
 
 @end

@@ -22,11 +22,15 @@
     return @"onRecycle";
 }
 
-- (instancetype)initWithReactTag:(NSNumber *)reactTag position:(NSInteger)position {
+- (instancetype)initWithReactTag:(NSNumber *)reactTag
+                        position:(NSInteger)position
+                    prevPosition:(NSInteger)prevPosition
+{
   if ((self = [super init])) {
     _viewTag = reactTag;
     _body = @{
-      @"position": [NSNumber numberWithLong:position]
+      @"position": [NSNumber numberWithLong:position],
+      @"prevPosition": [NSNumber numberWithLong:prevPosition]
     };
   }
   return self;
