@@ -249,8 +249,11 @@ export function RecyclerView<TData>({
 
   prevData.current = traversedData;
 
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
   return (
     <GestureHandlerRootView>
+      {isRefreshing && <Text>IS RFRESHINH</Text>}
       <RawDataContext.Provider value={data}>
       <DataContext.Provider value={datas}>
         <View style={style} removeClippedSubviews={false}>
@@ -259,6 +262,12 @@ export function RecyclerView<TData>({
           {/*  shouldActivateOnStart*/}
           {/*>*/}
           <RecyclerListView
+            onRefresh={() => {
+              console.log("XXX")
+              setIsRefreshing(true);
+              setTimeout(() => setIsRefreshing(false), 3000)
+            }}
+            isRefreshing={isRefreshing}
             id={currId}
             identifier={currId}
             count={data.length}

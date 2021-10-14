@@ -13,6 +13,8 @@
 
 RCT_EXPORT_MODULE(RecyclerListView) // TODO osdnk rename to RecyclerList
 RCT_EXPORT_VIEW_PROPERTY(identifier, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(isRefreshing, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(onRefresh, RCTDirectEventBlock);
 
 
 - (instancetype)init {

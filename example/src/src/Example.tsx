@@ -211,7 +211,7 @@ export default function Example({ data } : { data: DataCell[] }) {
     type2: <ContactCell2/>
   }))
 
-  const getViewType = useCallback((d) => d.index === 0 ? "header" : d.index %2 === 0 ? "type1" : "type1", [])
+  const getViewType = useCallback((d) => d.index === 0 ? "header" : d.index %2 === 0 ? "type2" : "type1", [])
   const isSticky = useCallback((_, __, i) => i === 0, [])
   const getHash = useCallback((d) => d.name, [])
 

@@ -31,7 +31,9 @@ export default function App() {
   return (
     <View style={styles.container}>
 
-      <RecyclerView data={data}/>
+      <RecyclerView data={data}
+
+      />
       <Button title={"reset"} onPress={() => {
         setVisible(false);
         setTimeout(() => setVisible(true), 1000)

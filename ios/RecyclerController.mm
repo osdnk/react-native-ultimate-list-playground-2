@@ -94,12 +94,19 @@
   [RecyclerController.lists setObject:self.controller forKey:self.identifier];
 }
 
+- (void)setIsRefreshing:(BOOL)isRefreshing {
+  if (isRefreshing) {
+    [_controller.refreshControl beginRefreshing];
+  } else {
+    [_controller.refreshControl endRefreshing];
+  }
+}
+
 @end
 
 static NSMutableDictionary<NSNumber *,RecyclerController *> * _lists;
 
 @implementation RecyclerController {
-  UIRefreshControl *_refreshControl;
   SizeableView *_config;
 }
 
@@ -250,6 +257,9 @@ static NSMutableDictionary<NSNumber *,RecyclerController *> * _lists;
 }
 
 -(void)refershControlAction {
+  if (_config.onRefresh) {
+    _config.onRefresh(nil);
+  }
   [_refreshControl endRefreshing];
 }
 

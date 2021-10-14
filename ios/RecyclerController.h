@@ -15,13 +15,17 @@
     UICollectionView *_collectionView;
 }
 @property (nonatomic) NSMutableDictionary<NSString*, CellStorage *> *cellStorages;
+@property (nonatomic) UIRefreshControl* refreshControl;
 @property (class, nonatomic) NSMutableDictionary<NSNumber*, RecyclerController*>* lists;
 + (void)notifyNewData:(int)listId;
 - (void)notifyNewData;
+
 @end
 
 @interface SizeableView: RCTView
 
+@property(nonatomic, copy) RCTDirectEventBlock onRefresh;
+@property(nonatomic) BOOL isRefreshing;
 @property (nonatomic) NSNumber* identifier;
 // TODO osdnk dealloc
 @property (nonatomic, strong) RecyclerController* controller;
